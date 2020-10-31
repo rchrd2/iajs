@@ -5,7 +5,7 @@ const {
   MetadataAPI,
   RelatedAPI,
   SearchAPI,
-} = require("./index");
+} = require("../../index");
 
 const log = console.log;
 const identifier = "example-png";
@@ -14,17 +14,16 @@ const identifier = "example-png";
   log(await MetadataAPI.get({ identifier, path: "metadata" }));
   log(await MetadataAPI.get({ identifier, path: "metadata/identifier" }));
   log(await RelatedAPI.get({ identifier }));
-  log(await FilesXmlAPI.get({ identifier }));
+  let searchResults = await SearchAPI.get({
+    q: "nintendo",
+    fields: ["identifier"],
+    page: 2,
+    foo: "bar",
+  });
+  log(JSON.stringify(searchResults, null, 2));
   log(
-    JSON.stringify(
-      await SearchAPI.get({
-        q: identifier,
-        fields: ["identifier"],
-        page: 2,
-        foo: "bar",
-      }),
-      null,
-      2
-    )
+    searchResults["response"]["docs"]
+      .map((r) => `https://archive.org/details/${r["identifier"]}`)
+      .join("\n")
   );
 })();
