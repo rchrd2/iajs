@@ -1,0 +1,24 @@
+{
+  "name": "@rchrd2/iajs",
+  "version": "1.0.0",
+  "description": "Internet Archive JavaScript Client",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rchrd2/iajs.git"
+  },
+  "keywords": [
+    "Internet",
+    "Archive",
+    "Client"
+  ],
+  "author": "Richard Caceres",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/rchrd2/iajs/issues"
+  },
+  "homepage": "https://github.com/rchrd2/iajs#readme"
+}
