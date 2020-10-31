@@ -32,26 +32,12 @@ class AuthAPI {
 
 class BookReaderAPI {}
 
+class GifcitiesAPI {}
+
 class DetailsPageAPI {
   /* TODO scrape details page for display information */
   constructor() {
     this.API_BASE = "https://archive.org/details";
-  }
-}
-
-class FilesXmlAPI {
-  constructor() {
-    this.API_PATTERN =
-      "https://archive.org/download/{identifier}/{identifier}_files.xml";
-  }
-  async get({ identifier = null } = {}) {
-    const url = this.API_PATTERN.replace(/{identifier}/g, identifier);
-    const response = await rawFetch(url);
-    // TODO parse the XML
-    // const parser = new DOMParser();
-    // const xml = parser.parseFromString(response, "application/xml");
-    // return xml;
-    return response;
   }
 }
 
@@ -109,7 +95,7 @@ module.exports = {
   AuthAPI: new AuthAPI(),
   BookReaderAPI: new BookReaderAPI(),
   DetailsPageAPI: new DetailsPageAPI(),
-  FilesXmlAPI: new FilesXmlAPI(),
+  GifcitiesAPI: new GifcitiesAPI(),
   MetadataAPI: new MetadataAPI(),
   RelatedAPI: new RelatedAPI(),
   SearchAPI: new SearchAPI(),

@@ -1,11 +1,4 @@
-const {
-  AuthAPI,
-  DetailsPageAPI,
-  FilesXmlAPI,
-  MetadataAPI,
-  RelatedAPI,
-  SearchAPI,
-} = require("../../index");
+const { MetadataAPI, RelatedAPI, SearchAPI } = require("../../index");
 
 const log = console.log;
 const identifier = "example-png";
@@ -20,7 +13,6 @@ const identifier = "example-png";
     page: 2,
     foo: "bar",
   });
-  log(JSON.stringify(searchResults, null, 2));
   log(
     searchResults["response"]["docs"]
       .map((r) => `https://archive.org/details/${r["identifier"]}`)

@@ -1,6 +1,6 @@
 {
-  "name": "@rchrd2/iajs",
-  "version": "1.0.0",
+  "name": "iajs",
+  "version": "0.0.0",
   "description": "Internet Archive JavaScript Client",
   "main": "index.js",
   "scripts": {
