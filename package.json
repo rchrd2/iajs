@@ -20,5 +20,11 @@
   "bugs": {
     "url": "https://github.com/rchrd2/iajs/issues"
   },
-  "homepage": "https://github.com/rchrd2/iajs#readme"
+  "homepage": "https://github.com/rchrd2/iajs#readme",
+  "dependencies": {
+    "node-fetch": "^2.6.1"
+  },
+  "devDependencies": {
+    "prettier": "2.1.2"
+  }
 }
