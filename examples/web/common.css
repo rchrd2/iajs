@@ -1,0 +1,54 @@
+body {
+  max-width: initial;
+}
+#code {
+  font-size: 16px;
+  font-family: monospace;
+  color: #333;
+  /* word-wrap: none; */
+  white-space: pre;
+  overflow-wrap: normal;
+  overflow-x: scroll;
+}
+#out {
+  background: #eee;
+  padding: 10px;
+}
+#next {
+  float: right;
+}
+pre {
+  max-width: 1000px;
+  font-size: 1.2rem;
+  padding: 15px;
+}
+.shell {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+.shell main {
+  height: 100%;
+  flex: auto;
+  display: flex;
+  flex-direction: row;
+}
+main section {
+  flex: auto;
+  height: 100%;
+  width: 50%;
+  overflow: auto;
+}
+main section + section {
+  margin-left: 10px;
+}
+header {
+  display: flex;
+  flex-direction: row;
+  justify-items: space-between;
+  align-content: center;
+  padding-bottom: 20px;
+}
+header div.left {
+  flex: auto;
+}

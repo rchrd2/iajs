@@ -1,8 +1,8 @@
-const fetch = require("node-fetch");
+import fetch from "node-fetch";
 
 const rawFetch = async function (url) {
   const res = await fetch(url);
-  return (body = await res.text());
+  return await res.text();
 };
 
 const jsonFetch = async function (url) {
@@ -16,6 +16,7 @@ const log = console.log;
 const REQUIRED = "__REQUIRED__";
 
 const checkRequired = function (options) {
+  return null; // TODO
   for (k in options) {
     if (options[k] == REQUIRED) {
       return k;
@@ -32,7 +33,18 @@ class AuthAPI {
 
 class BookReaderAPI {}
 
-class GifcitiesAPI {}
+class GifcitiesAPI {
+  constructor() {
+    this.API_BASE = "https://gifcities.archive.org/api/v1/gifsearch";
+  }
+  async get({ q = null } = {}) {
+    if (q === null) return [];
+    return jsonFetch(`${this.API_BASE}?q=${encodeURIComponent(q)}`);
+  }
+  async search(q) {
+    return this.get({ q });
+  }
+}
 
 class DetailsPageAPI {
   /* TODO scrape details page for display information */
@@ -83,15 +95,17 @@ class SearchAPI {
     }
     const encodedParams = new URLSearchParams(reqOptions).toString();
     const url = `${this.API_BASE}?${encodedParams}`;
-    log(url);
     return jsonFetch(url);
+  }
+  async search(q) {
+    return await this.get({ q });
   }
 }
 
 class SearchTextAPI {}
 class WaybackAPI {}
 
-module.exports = {
+export default {
   AuthAPI: new AuthAPI(),
   BookReaderAPI: new BookReaderAPI(),
   DetailsPageAPI: new DetailsPageAPI(),

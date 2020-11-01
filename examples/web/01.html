@@ -1,0 +1,56 @@
+<html>
+  <body>
+    <div class="shell">
+      <header>
+        <div class="left">
+          <p>
+            Fetch data from the Internet Archive Item Metadata API.
+            <br/><i>Note the code is editable and can be run with the "Run" button</i>
+            <span id="next"><a href="02.html">Next example &gt;</a></span>
+          </p>
+        </div>
+      </header>
+      <main>
+        <section>
+          <textarea class="language-javascript" id="code"></textarea>
+          <button id="run">Run</button>
+        </section>
+        <section>
+          <div id="out">
+            <div id="loading">Loading...</div>
+          </div>
+        </section>
+      </main>
+      <footer>
+        <b>iajs</b> examples | <a href="https://github.com/rchrd2/iajs">https://github.com/rchrd2/iajs</a>
+      </footer>
+    </div>
+<!-- --------------------- -->
+<script src="./ia.browser.js"></script>
+<script id="sourcecode">
+ia.MetadataAPI.get({
+  identifier: 'mma_the_sphynx_and_great_pyramid_geezeh_271101',
+  path: 'metadata'
+}).then(function(results) {
+  var outEl = document.getElementById('out');
+  var rowsHtml = Object.keys(results.result).map((key) => {
+      var values = results.result[key];
+      // Normalize to array
+      values = Array.isArray(values) ? values : [ values ];
+      values = values.map(v => {
+        var searchUrl = `https://archive.org/search.php?query=${encodeURIComponent(key)}%3A${encodeURIComponent('"'+v+'"')}`;
+        return `<a href="${searchUrl}" target="_blank">${v}</a>`;
+      });
+      return `<tr>
+        <td>${key}</td>
+        <td>${values.join('<br/>')}</td>
+      </tr>`;
+    }).join("\n");
+  outEl.innerHTML = `<table>${rowsHtml}</table>`;
+});
+</script>
+<script src="./common.js"></script>
+<link rel="stylesheet" href="./water-2-light.css">
+<link rel="stylesheet" href="./common.css">
+  </body>
+</html>

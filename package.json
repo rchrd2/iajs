@@ -1,11 +1,16 @@
 {
   "name": "iajs",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Internet Archive JavaScript Client",
-  "main": "index.js",
+  "main": "dist/ia.cjs.js",
+  "module": "dist/ia.esm.js",
+  "browser": "dist/ia.browser.js",
   "scripts": {
     "test": "node ./examples/web/test.js",
-    "dev": "cd examples/web; npm run dev"
+    "dev": "cd examples/web; npm run dev",
+    "build": "rollup -c",
+    "watch": "rollup -c -w",
+    "pretest": "npm run build"
   },
   "repository": {
     "type": "git",
@@ -26,6 +31,12 @@
     "node-fetch": "^2.6.1"
   },
   "devDependencies": {
-    "prettier": "2.1.2"
-  }
+    "@rollup/plugin-commonjs": "^11.0.1",
+    "@rollup/plugin-node-resolve": "^7.0.0",
+    "prettier": "2.1.2",
+    "rollup": "^1.29.0"
+  },
+  "files": [
+    "dist"
+  ]
 }

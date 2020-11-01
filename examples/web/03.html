@@ -1,0 +1,61 @@
+<html>
+  <body>
+    <div class="shell">
+      <header>
+        <div class="left">
+          <p>
+            Search the Internet Archive Collections<br/>
+            Note choice of fields argument and lucene syntax. See <a href="https://archive.org/advancedsearch.php" target="_blank">Advanced Search</a>.
+            <span id="next"><a href="02.html">&lt; Previous example</a> <!--| <a href="04.html">Next example &gt;</a>-->  </span>
+          </p>
+        </div>
+      </header>
+      <main>
+        <section>
+          <textarea class="language-javascript" id="code"></textarea>
+          <button id="run">Run</button>
+        </section>
+        <section>
+          <div id="out">
+            <div id="loading">Loading...</div>
+          </div>
+        </section>
+      </main>
+      <footer>
+        <b>iajs</b> examples | <a href="https://github.com/rchrd2/iajs">https://github.com/rchrd2/iajs</a>
+      </footer>
+    </div>
+<!-- --------------------- -->
+<script src="./ia.browser.js"></script>
+<script id="sourcecode">
+ia.SearchAPI.get({
+  q: 'photograph collection:metropolitanmuseumofart-gallery',
+  fields: ['identifier', 'title']
+}).then(function(results) {
+  var outEl = document.getElementById('out');
+  outEl.innerHTML = '';
+  results.response.docs.forEach(function(row) {
+    var img = document.createElement('img');
+    img.src = `https://archive.org/services/img/${row.identifier}`;
+    img.onclick = () => window.open(`https://archive.org/details/${row.identifier}`);
+    img.title = row.title;
+    outEl.appendChild(img)
+  })
+});
+</script>
+<script src="./common.js"></script>
+<link rel="stylesheet" href="./water-2-light.css">
+<link rel="stylesheet" href="./common.css">
+<style>
+  #out {
+    display: grid;
+    grid-gap: 10px;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    grid-gap: 20px;
+    /* align-items: start; */
+  }
+  #out img { display: inline-block; margin-bottom: 10px;}
+  #out img + img { marign-left: 10px;}
+</style>
+  </body>
+</html>

@@ -11,6 +11,8 @@ Planned features
 - Update item metadata and files
 - Create items
 - Add page to Wayback
+- Get/set favorites
+- Get/set reviews
 - Generate embed codes for books/videos/music
 - more tbd
 

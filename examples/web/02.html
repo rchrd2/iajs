@@ -1,0 +1,59 @@
+
+
+<html>
+  <body>
+    <div class="shell">
+      <header>
+        <div class="left">
+          <p>
+            Get gifs from <a href="https://gifcities.org">gifcities.org</a>.
+            <br/><i>Note the code is editable and can be run with the "Run" button</i>
+            <span id="next"><a href="01.html">&lt; Previous example</a> | <a href="03.html">Next example &gt;</a></span>
+          </p>
+        </div>
+      </header>
+      <main>
+        <section>
+          <textarea class="language-javascript" id="code"></textarea>
+          <button id="run">Run</button>
+        </section>
+        <section>
+          <div id="out">
+            <div id="loading">Loading...</div>
+          </div>
+        </section>
+      </main>
+      <footer>
+        <b>iajs</b> examples | <a href="https://github.com/rchrd2/iajs">https://github.com/rchrd2/iajs</a>
+      </footer>
+    </div>
+<!-- --------------------- -->
+<script src="./ia.browser.js"></script>
+<script id="sourcecode">
+ia.GifcitiesAPI.search('snowglobe').then(function(results) {
+  var outEl = document.getElementById('out');
+  outEl.innerHTML = '';
+  results.slice(0, 10).forEach(function(result) {
+    var img = document.createElement('img');
+    img.src = `https://web.archive.org/${result.gif}`;
+    img.alt = result.url_text;
+    outEl.appendChild(img)
+  })
+});
+</script>
+<script src="./common.js"></script>
+<link rel="stylesheet" href="./water-2-light.css">
+<link rel="stylesheet" href="./common.css">
+<style>
+  #out {
+    display: grid;
+    grid-gap: 10px;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    grid-gap: 20px;
+    /* align-items: start; */
+  }
+  #out img { display: inline-block; margin-bottom: 10px;}
+  #out img + img { marign-left: 10px;}
+</style>
+  </body>
+</html>
