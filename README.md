@@ -2,7 +2,11 @@ WIP Internet Archive JavaScript and NodeJS client
 
 NOTE: This is in an experimental phase and it will probably change a lot.
 
-Planned features
+## Live examples
+
+<https://rchrd2.github.io/iajs/examples/web/01.html>
+
+## Planned features
 
 - ✅ Read item metadata and list of files (Metadata API)
 - ✅ Search (Search API)
