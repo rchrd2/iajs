@@ -33,22 +33,22 @@ pre {
   display: flex;
   flex-direction: row;
 }
-main section {
+.shell main section {
   flex: auto;
   height: 100%;
   width: 50%;
   overflow: auto;
 }
-main section + section {
+.shell main section + section {
   margin-left: 10px;
 }
-header {
+.shell header {
   display: flex;
   flex-direction: row;
   justify-items: space-between;
   align-content: center;
   padding-bottom: 20px;
 }
-header div.left {
+.shell header div.left {
   flex: auto;
 }

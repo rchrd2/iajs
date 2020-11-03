@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+  </head>
+  <body>
+    <div class="">
+      <header>
+        <div class="left">
+          <p>
+            This advanced example shows how to render an Archive.org Item by making multiple API calls.<br/>
+            The Metadata API provides most of the data, but the RelatedItem API is also used, and the SearchAPI is used to fetch additional fields for the item's collections. And the ViewsAPI is used for the view count.<br/>
+            The embed and images are rendered using a URL pattern of <code>archive.org/embed/{identifier}</code> and <code>archive.org/services/img/{identifier}</code>.
+            <span id="next"><a href="04.html">&lt; Previous example</a> <!--| <a href="06.html">Next example &gt;</a>-->  </span>
+          </p>
+        </div>
+      </header>
+      <main>
+        <section>
+          <div id="embed"></div>
+          <div id="summary"></div>
+          <h2>Metadata</h2>
+          <div id="metadata"></div>
+          <h2>Files</h2>
+          <div id="files"></div>
+          <h2>Collections</h2>
+          <div id="collections"></div>
+          <h2>Similar items</h2>
+          <div id="related"></div>
+          <h2>Reviews</h2>
+          <div id="review-form">
+            <form onsubmit="alert('Not implemented');return false;">
+              <input type="text" placeholder="Review title..." />
+              <textarea placeholder="Review..."></textarea>
+              <input type="submit" value="Add a public review" />
+            </form>
+          </div>
+          <div id="reviews"></div>
+        </section>
+        <hr/>
+        <section>
+          <h2>Source code for this page</h2>
+          <textarea class="language-javascript" id="code"></textarea>
+          <button id="run">Run</button>
+        </section>
+      </main>
+      <footer>
+        <b>iajs</b> examples | <a href="https://github.com/rchrd2/iajs">https://github.com/rchrd2/iajs</a>
+      </footer>
+    </div>
+<!-- --------------------- -->
+<script src="./ia.browser.js"></script>
+<script id="sourcecode">
+function a(v) {
+  return Array.isArray(v) ? v : [ v ];
+}
+function pushIf(array, value) {
+  if (value) array.push(value);
+}
+function renderMetadata(metadata) {
+  var targetEl = document.getElementById('metadata');
+  var rowsHtml = Object.keys(metadata).map((key) => {
+      var values = metadata[key];
+      // Normalize to array
+      values = a(values).map(v => {
+        var searchUrl = `https://archive.org/search.php?query=${encodeURIComponent(key)}%3A${encodeURIComponent('"'+v+'"')}`;
+        return `<a href="${searchUrl}" target="_blank">${v}</a>`;
+      });
+      return `<tr>
+        <td>${key}</td>
+        <td>${values.join('<br/>')}</td>
+      </tr>`;
+    }).join("\n");
+  targetEl.innerHTML = `<table>${rowsHtml}</table>`;
+}
+function renderEmbed(identifier) {
+  var targetEl = document.getElementById('embed');
+  targetEl.innerHTML = `<iframe src="https://archive.org/embed/${identifier}" width="500" height="300"></iframe>`
+}
+
+function renderFiles(results) {
+  var files = results.files;
+  var identifier = results.metadata.identifier;
+  var targetEl = document.getElementById('files');
+  var rowsHtml = files.map((row) => {
+      var href = `https://archive.org/download/${identifier}/${row.name}`;
+      var link = `<a href="${href}" target="_blank">${row.name}</a>`;
+      return `<tr>
+        <td>${link}</td>
+        <td>${row.format}</td>
+        <td>${row.size}</td>
+        <td>${row.source}</td>
+      </tr>`;
+    }).join("\n");
+  targetEl.innerHTML = `<table>${rowsHtml}</table>`;
+}
+
+function renderReviews(reviews) {
+  var targetEl = document.getElementById('reviews');
+  var rowsHtml = reviews.slice(0, 6).map((row) => {
+      return `<div>
+        <div>
+          <p><b>${row.reviewer_itemname || row.reviewer}</b> ${"⭐️".repeat(row.stars)} &mdash; ${row.reviewdate}</p>
+          <p>${row.reviewtitle}</p>
+          <p>${row.reviewbody}</p>
+        </div>
+      </div>`;
+    }).join("\n");
+  targetEl.innerHTML = `${rowsHtml}`;
+}
+
+function renderCollections(searchResults) {
+  var targetEl = document.getElementById('collections');
+  var rowsHtml = searchResults.response.docs.map((row) => {
+      return `<a href="https://archive.org/details/${row.identifier}">
+            <img src="https://archive.org/services/img/${row.identifier}" alt="" /><br/>
+            ${row.title}
+          </a>`;
+    }).join("\n");
+  targetEl.innerHTML = `<div class="grid">${rowsHtml}</div>`;
+}
+
+function renderRelated(results) {
+  var targetEl = document.getElementById('related');
+  var rowsHtml = results.hits.hits.map((row) => {
+      return `<a href="#" onclick='renderPage("${row._id}")'>
+            <img src="https://archive.org/services/img/${row._id}" alt="" /><br/>
+            ${row._source.title.join(', ')}
+          </a>`;
+    }).join("\n");
+  targetEl.innerHTML = `<div class="grid">${rowsHtml}</div>`;
+}
+
+function renderSummary(results) {
+  var targetEl = document.getElementById('summary');
+  var fields = [];
+  pushIf(fields, a(results.metadata.title).join(', '));
+  pushIf(fields, a(results.metadata.creator).join(', '));
+  pushIf(fields, a(results.metadata.views).join(', '));
+  var html = `<h1><span>${fields.join(' - ')}</span></h1>`;
+
+  html += `<div id="views"></div>`;
+
+  if (results.metadata.description) {
+    html += `<p>${a(results.metadata.description).join('<br/>')}</p>`;
+  }
+  targetEl.innerHTML = html;
+}
+
+function renderViews(results, identifier) {
+  var targetEl = document.getElementById('views');
+  targetEl.innerText = `Views: ${results[identifier].all_time}`;
+}
+
+function renderPage(identifier) {
+  renderEmbed(identifier);
+
+  ia.MetadataAPI.get({ identifier }).then(function(results) {
+    renderSummary(results);
+    renderMetadata(results.metadata);
+    renderFiles(results);
+    renderReviews(results.reviews);
+
+    ia.SearchAPI.get({
+      q: {identifier: results.metadata.collection},
+      fields: ["identifier", "title"]
+    }).then(function(searchResults) {
+      console.log(searchResults);
+      renderCollections(searchResults);
+    })
+
+    ia.ViewsAPI.get({ identifier }).then(function(results) {
+      renderViews(results, identifier);
+    });
+  });
+
+  ia.RelatedAPI.get({ identifier }).then(function(results) {
+    renderRelated(results);
+  });
+}
+
+renderPage('goodytwoshoes00newyiala');
+
+
+</script>
+<script src="./common.js"></script>
+<link rel="stylesheet" href="./water-2-light.css">
+<link rel="stylesheet" href="./common.css">
+<style>
+main {
+  /* max-width: 800px; */
+  margin: 20px auto;
+}
+iframe {
+  width: 100%;
+  height: 70vh;
+}
+.grid {
+  display: grid;
+  grid-gap: 10px;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  grid-gap: 20px;
+  /* align-items: start; */
+}
+.grid  a { display: inline-block; margin-bottom: 10px;}
+.grid  a + a { marign-left: 10px;}
+#reviews, #review-form {
+  max-width: 600px;
+}
+
+</style>
+  </body>
+</html>

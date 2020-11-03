@@ -91,6 +91,17 @@ class RelatedAPI {
   }
 }
 
+class ReviewsAPI {
+  constructor() {
+    this.WRITE_API_BASE =
+      "https://archive.org/services/reviews.php?identifier=";
+    this.READ_API_BASE = "https://archive.org/metadata/";
+  }
+  async get({ identifier = null } = {}) {
+    return jsonFetch(`${this.READ_API_BASE}/${identifier}/reviews`);
+  }
+}
+
 class SearchAPI {
   constructor() {
     this.API_BASE = "https://archive.org/advancedsearch.php";
@@ -102,6 +113,14 @@ class SearchAPI {
     fields = ["identifier"],
     ...options
   } = {}) {
+    let required = checkRequired(reqOptions);
+    if (required !== null) {
+      return { required };
+    }
+    if (typeof q == "object") {
+      q = this.buildQueryFromObject(q);
+      console.log(q);
+    }
     const reqOptions = {
       q,
       page,
@@ -109,10 +128,6 @@ class SearchAPI {
       ...options,
       output: "json",
     };
-    let required = checkRequired(reqOptions);
-    if (required !== null) {
-      return { required };
-    }
     const encodedParams = new URLSearchParams(reqOptions).toString();
     const url = `${this.API_BASE}?${encodedParams}`;
     return jsonFetch(url);
@@ -120,9 +135,33 @@ class SearchAPI {
   async search(q) {
     return await this.get({ q });
   }
+  buildQueryFromObject(qObject) {
+    // Map dictionary to a key=val search query
+    return Object.keys(qObject)
+      .map((key) => {
+        if (Array.isArray(qObject[key])) {
+          return `${key}:( ${qObject[key].map((v) => `"${v}"`).join(" OR ")} )`;
+        } else {
+          return `${key}=${qObject[key]}`;
+        }
+      })
+      .join(" AND ");
+  }
 }
 
 class SearchTextAPI {}
+
+class ViewsAPI {
+  constructor() {
+    // https://be-api.us.archive.org/views/v1/short/<identifier>[,<identifier>,...]
+    this.API_BASE = "https://be-api.us.archive.org/views/v1/short";
+  }
+  async get({ identifier = null } = {}) {
+    identifier = Array.isArray(identifier) ? identifier.join(",") : identifier;
+    return jsonFetch(`${this.API_BASE}/${identifier}`);
+  }
+}
+
 class WaybackAPI {}
 
 export default {
@@ -132,7 +171,9 @@ export default {
   GifcitiesAPI: new GifcitiesAPI(),
   MetadataAPI: new MetadataAPI(),
   RelatedAPI: new RelatedAPI(),
+  ReviewsAPI: new ReviewsAPI(),
   SearchAPI: new SearchAPI(),
   SearchTextAPI: new SearchTextAPI(),
+  ViewsAPI: new ViewsAPI(),
   WaybackAPI: new WaybackAPI(),
 };
