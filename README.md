@@ -4,11 +4,12 @@ NOTE: This is in an experimental phase and it will probably change a lot.
 
 Planned features
 
-- ✅ Read item metadata and list of files
-- ✅ Search
-- ✅ Search gifcities.org
-- ✅ Query related item API
-- Sign in
+- ✅ Read item metadata and list of files (Metadata API)
+- ✅ Search (Search API)
+- ✅ Search gifcities.org (GifCities API)
+- ✅ Query related item API (Related Items API)
+- ✅ Sign in with user/pass (Xauthn API)
+- Sign in with s3 tokens
 - Update item metadata and files
 - Create items
 - Query the Wayback Machine

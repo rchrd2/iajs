@@ -4,21 +4,25 @@
       <header>
         <div class="left">
           <p>
-            Search the Internet Archive Collections<br/>
-            Note choice of fields argument and lucene syntax. See <a href="https://archive.org/advancedsearch.php" target="_blank">Advanced Search</a>.
-            <span id="next"><a href="02.html">&lt; Previous example</a> | <a href="04.html">Next example &gt;</a> </span>
+            Login to the Internet Archive
+            <span id="next"><a href="03.html">&lt; Previous example</a> <!--| <a href="04.html">Next example &gt;</a>-->  </span>
           </p>
         </div>
       </header>
       <main>
         <section>
+          <form id="form">
+            <p>Type in email and password to login</p>
+            <input type="text" name="username" placeholder="username" value="" />
+            <input type="password" name="password" placeholder="password" />
+            <input type="submit" value="Login"></input>
+          </form>
+          <hr/>
           <textarea class="language-javascript" id="code"></textarea>
           <button id="run">Run</button>
         </section>
         <section>
-          <div id="out">
-            <div id="loading">Loading...</div>
-          </div>
+          <div id="out"></div>
         </section>
       </main>
       <footer>
@@ -28,20 +32,18 @@
 <!-- --------------------- -->
 <script src="./ia.browser.js"></script>
 <script id="sourcecode">
-ia.SearchAPI.get({
-  q: 'photograph collection:metropolitanmuseumofart-gallery',
-  fields: ['identifier', 'title']
-}).then(function(results) {
-  var outEl = document.getElementById('out');
-  outEl.innerHTML = '';
-  results.response.docs.forEach(function(row) {
-    var img = document.createElement('img');
-    img.src = `https://archive.org/services/img/${row.identifier}`;
-    img.onclick = () => window.open(`https://archive.org/details/${row.identifier}`);
-    img.title = row.title;
-    outEl.appendChild(img)
+var formEl = document.getElementById('form');
+formEl.onsubmit = function(e) {
+  e.preventDefault();
+  ia.Auth.login(
+    formEl.elements.username.value,
+    formEl.elements.password.value
+  ).then(function(response) {
+    console.log(response);
+    var outEl = document.getElementById('out');
+    outEl.innerHTML = `<pre>${JSON.stringify(response,null, 2)}</pre>`;
   })
-});
+};
 </script>
 <script src="./common.js"></script>
 <link rel="stylesheet" href="./water-2-light.css">

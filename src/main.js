@@ -1,5 +1,7 @@
 import fetch from "node-fetch";
 
+const CORS_PROXY = "https://iajs-cors.rchrd2.workers.dev";
+
 const rawFetch = async function (url) {
   const res = await fetch(url);
   return await res.text();
@@ -25,9 +27,27 @@ const checkRequired = function (options) {
   return null;
 };
 
-class AuthAPI {
+class Auth {
   constructor() {
-    this.API_BASE = "https://archive.org/account/login";
+    this.XAUTH_URL = "https://archive.org/services/xauthn/?op=login";
+    if (!(typeof window === "undefined")) {
+      this.XAUTH_URL = `${CORS_PROXY}/${this.XAUTH_URL}`;
+    }
+  }
+  async login(email, password) {
+    try {
+      const enc = encodeURIComponent;
+      const fetchOptions = {
+        method: "POST",
+        body: `email=${enc(email)}&password=${enc(password)}`,
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      };
+      const response = await fetch(this.XAUTH_URL, fetchOptions);
+      return await response.json();
+    } catch (e) {
+      // TODO figure out syntax for catching error reponse
+      return { success: false };
+    }
   }
 }
 
@@ -106,7 +126,7 @@ class SearchTextAPI {}
 class WaybackAPI {}
 
 export default {
-  AuthAPI: new AuthAPI(),
+  Auth: new Auth(),
   BookReaderAPI: new BookReaderAPI(),
   DetailsPageAPI: new DetailsPageAPI(),
   GifcitiesAPI: new GifcitiesAPI(),
