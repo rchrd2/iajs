@@ -3,17 +3,6 @@ import fetch from "node-fetch";
 const log = console.log;
 const enc = encodeURIComponent;
 const REQUIRED = "__REQUIRED__";
-const emptyAuth = {
-  success: false,
-  values: {
-    cookies: {},
-    email: null,
-    itemname: null,
-    s3: { access: null, secret: null },
-    screenname: null,
-  },
-  version: 1,
-};
 let CORS_PROXY = "https://iajs-cors.rchrd2.workers.dev";
 
 const isInBrowser = () => {
@@ -28,8 +17,8 @@ const corsWorkAround = (url) => {
   }
 };
 
-const fetchJson = async function (url) {
-  const res = await fetch(url);
+const fetchJson = async function (url, options) {
+  const res = await fetch(url, options);
   return await res.json();
 };
 
@@ -43,6 +32,30 @@ const checkRequired = function (options) {
   return null;
 };
 
+const authToHeader = function (auth) {
+  return auth.values.s3.access && auth.values.s3.secret
+    ? {
+        Authorization: `LOW ${auth.values.s3.access}:${auth.values.s3.secret}`,
+      }
+    : {};
+};
+
+const newEmptyAuth = function () {
+  return JSON.parse(
+    JSON.stringify({
+      success: false,
+      values: {
+        cookies: {},
+        email: null,
+        itemname: null,
+        s3: { access: null, secret: null },
+        screenname: null,
+      },
+      version: 1,
+    })
+  );
+};
+
 class Auth {
   constructor() {
     this.XAUTH_URL = corsWorkAround(
@@ -54,14 +67,35 @@ class Auth {
       const fetchOptions = {
         method: "POST",
         body: `email=${enc(email)}&password=${enc(password)}`,
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
       };
       const response = await fetch(this.XAUTH_URL, fetchOptions);
-      return await response.json();
+      const data = await response.json();
+      if (!data.success) {
+        data.values = { ...data.values, ...newEmptyAuth().values };
+      }
+      return data;
     } catch (e) {
       // TODO figure out syntax for catching error reponse
-      return { success: false };
+      return newEmptyAuth();
     }
+  }
+  async fromS3(access, secret) {
+    const newAuth = newEmpthAuth();
+    newAuth.success = 1;
+    newAuth.values.s3.access = access;
+    newAuth.values.s3.secret = secret;
+    const info = await fetchJson("https://s3.us.archive.org?check_auth=1", {
+      headers: authToHeader(auth),
+    });
+    newAuth.values.email = info.username;
+    newAuth.values.itemname = info.itemname;
+    newAuth.values.screenname = info.screenname;
+    // Note the auth object is missing cookie fields.
+    // It is still TBD if those are needed
+    return newAuth;
   }
 }
 
@@ -84,8 +118,36 @@ class MetadataAPI {
   constructor() {
     this.API_BASE = "https://archive.org/metadata";
   }
-  async get({ identifier = null, path = "" } = {}) {
-    return fetchJson(`${this.API_BASE}/${identifier}/${path}`);
+  async get({ identifier = null, path = "", auth = newEmptyAuth() } = {}) {
+    const options = {};
+    if (auth.values.s3.access) {
+      options.headers = authToHeader(auth);
+    }
+    return fetchJson(`${this.API_BASE}/${identifier}/${path}`, options);
+  }
+  async patch({
+    identifier = null,
+    target = "metadata",
+    patch = {},
+    auth = newEmptyAuth(),
+  } = {}) {
+    // https://archive.org/services/docs/api/metadata.html#targets
+    const reqParams = {
+      "-target": target,
+      "-patch": JSON.stringify(patch),
+      secret: auth.values.s3.secret,
+      access: auth.values.s3.access,
+    };
+    const url = corsWorkAround(`${this.API_BASE}/${identifier}`);
+    const body = new URLSearchParams(reqParams).toString();
+    const response = await fetch(url, {
+      method: "POST",
+      body,
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+    });
+    return await response.json();
   }
 }
 
@@ -113,7 +175,7 @@ class ReviewsAPI {
     title = null,
     body = null,
     stars = null,
-    auth = emptyAuth,
+    auth = newEmptyAuth(),
   } = {}) {
     const url = `${this.WRITE_API_BASE}${identifier}`;
     const response = await fetch(url, {
@@ -121,7 +183,7 @@ class ReviewsAPI {
       body: JSON.stringify({ title, body, stars }),
       headers: {
         "Content-Type": "application/json",
-        Authorization: `LOW ${auth.values.s3.access}:${auth.values.s3.secret}`,
+        ...authToHeader(auth),
       },
     });
     return await response.json();
@@ -140,7 +202,6 @@ class SearchAPI {
   } = {}) {
     if (typeof q == "object") {
       q = this.buildQueryFromObject(q);
-      console.log(q);
     }
     const reqParams = {
       q,

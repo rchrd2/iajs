@@ -38,14 +38,22 @@ formEl.onsubmit = function(e) {
   ia.Auth.login(
     formEl.elements.username.value,
     formEl.elements.password.value
-  ).then(function(authResponse) {
+  ).then(function(auth) {
     // Uncomment to add a review after logging in
     // ia.ReviewsAPI.add({
-    //   title: 'hello', body: 'world', stars: 5, identifier: "iajs-example-reviews", auth: authResponse
+    //   title: 'hello', body: 'world', stars: 5, identifier: "iajs-example-reviews", auth
     // }).then(console.log);
 
+    // Uncomment to try metadata patch (it wont' work unless you own the item)
+    // const patch = {
+    //   op: "add",
+    //   path: "/title",
+    //   value: `The date is ${new Date().toISOString()}`,
+    // };
+    // ia.MetadataAPI.patch({ identifier: "iajs-example-reviews", patch, auth }).then(console.log);
+
     var outEl = document.getElementById('out');
-    outEl.innerHTML = `<pre>${JSON.stringify(authResponse,null, 2)}</pre>`;
+    outEl.innerHTML = `<pre>${JSON.stringify(auth,null, 2)}</pre>`;
   })
 };
 </script>
