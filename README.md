@@ -19,7 +19,7 @@ NOTE: This is in an experimental phase and it will probably change a lot.
 - Query the Wayback Machine
 - Add page to Wayback
 - Get/set favorites
-- Get/set reviews
+- ✅ Get/set reviews (Reviews API)
 - Read item display data (eg business logic from /details page)
 - Generate embed codes for books/videos/music
 - more tbd

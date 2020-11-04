@@ -1,21 +1,37 @@
 import fetch from "node-fetch";
 
-const CORS_PROXY = "https://iajs-cors.rchrd2.workers.dev";
-
-const rawFetch = async function (url) {
-  const res = await fetch(url);
-  return await res.text();
-};
-
-const jsonFetch = async function (url) {
-  const res = await fetch(url);
-  const body = await res.text();
-  return JSON.parse(body);
-};
-
 const log = console.log;
-
+const enc = encodeURIComponent;
 const REQUIRED = "__REQUIRED__";
+const emptyAuth = {
+  success: false,
+  values: {
+    cookies: {},
+    email: null,
+    itemname: null,
+    s3: { access: null, secret: null },
+    screenname: null,
+  },
+  version: 1,
+};
+let CORS_PROXY = "https://iajs-cors.rchrd2.workers.dev";
+
+const isInBrowser = () => {
+  return !(typeof window === "undefined");
+};
+
+const corsWorkAround = (url) => {
+  if (isInBrowser()) {
+    return `${CORS_PROXY}/${url}`;
+  } else {
+    return url;
+  }
+};
+
+const fetchJson = async function (url) {
+  const res = await fetch(url);
+  return await res.json();
+};
 
 const checkRequired = function (options) {
   return null; // TODO
@@ -29,14 +45,12 @@ const checkRequired = function (options) {
 
 class Auth {
   constructor() {
-    this.XAUTH_URL = "https://archive.org/services/xauthn/?op=login";
-    if (!(typeof window === "undefined")) {
-      this.XAUTH_URL = `${CORS_PROXY}/${this.XAUTH_URL}`;
-    }
+    this.XAUTH_URL = corsWorkAround(
+      "https://archive.org/services/xauthn/?op=login"
+    );
   }
   async login(email, password) {
     try {
-      const enc = encodeURIComponent;
       const fetchOptions = {
         method: "POST",
         body: `email=${enc(email)}&password=${enc(password)}`,
@@ -59,17 +73,10 @@ class GifcitiesAPI {
   }
   async get({ q = null } = {}) {
     if (q === null) return [];
-    return jsonFetch(`${this.API_BASE}?q=${encodeURIComponent(q)}`);
+    return fetchJson(`${this.API_BASE}?q=${encodeURIComponent(q)}`);
   }
   async search(q) {
     return this.get({ q });
-  }
-}
-
-class DetailsPageAPI {
-  /* TODO scrape details page for display information */
-  constructor() {
-    this.API_BASE = "https://archive.org/details";
   }
 }
 
@@ -78,7 +85,7 @@ class MetadataAPI {
     this.API_BASE = "https://archive.org/metadata";
   }
   async get({ identifier = null, path = "" } = {}) {
-    return jsonFetch(`${this.API_BASE}/${identifier}/${path}`);
+    return fetchJson(`${this.API_BASE}/${identifier}/${path}`);
   }
 }
 
@@ -87,25 +94,43 @@ class RelatedAPI {
     this.API_BASE = "https://be-api.us.archive.org/mds/v1";
   }
   async get({ identifier = null } = {}) {
-    return jsonFetch(`${this.API_BASE}/get_related/all/${identifier}`);
+    return fetchJson(`${this.API_BASE}/get_related/all/${identifier}`);
   }
 }
 
 class ReviewsAPI {
   constructor() {
-    this.WRITE_API_BASE =
-      "https://archive.org/services/reviews.php?identifier=";
+    this.WRITE_API_BASE = corsWorkAround(
+      "https://archive.org/services/reviews.php?identifier="
+    );
     this.READ_API_BASE = "https://archive.org/metadata/";
   }
   async get({ identifier = null } = {}) {
-    return jsonFetch(`${this.READ_API_BASE}/${identifier}/reviews`);
+    return fetchJson(`${this.READ_API_BASE}/${identifier}/reviews`);
+  }
+  async add({
+    identifier = null,
+    title = null,
+    body = null,
+    stars = null,
+    auth = emptyAuth,
+  } = {}) {
+    const url = `${this.WRITE_API_BASE}${identifier}`;
+    const response = await fetch(url, {
+      method: "POST",
+      body: JSON.stringify({ title, body, stars }),
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `LOW ${auth.values.s3.access}:${auth.values.s3.secret}`,
+      },
+    });
+    return await response.json();
   }
 }
 
 class SearchAPI {
   constructor() {
     this.API_BASE = "https://archive.org/advancedsearch.php";
-    // ?q=test&fl%5B%5D=identifier&sort%5B%5D=&sort%5B%5D=&sort%5B%5D=&rows=50&page=1&output=json&save=yes';
   }
   async get({
     q = REQUIRED,
@@ -113,24 +138,24 @@ class SearchAPI {
     fields = ["identifier"],
     ...options
   } = {}) {
-    let required = checkRequired(reqOptions);
-    if (required !== null) {
-      return { required };
-    }
     if (typeof q == "object") {
       q = this.buildQueryFromObject(q);
       console.log(q);
     }
-    const reqOptions = {
+    const reqParams = {
       q,
       page,
       fl: fields,
       ...options,
       output: "json",
     };
-    const encodedParams = new URLSearchParams(reqOptions).toString();
+    // let required = checkRequired(reqParams);
+    // if (required !== null) {
+    //   return { required };
+    // }
+    const encodedParams = new URLSearchParams(reqParams).toString();
     const url = `${this.API_BASE}?${encodedParams}`;
-    return jsonFetch(url);
+    return fetchJson(url);
   }
   async search(q) {
     return await this.get({ q });
@@ -158,7 +183,7 @@ class ViewsAPI {
   }
   async get({ identifier = null } = {}) {
     identifier = Array.isArray(identifier) ? identifier.join(",") : identifier;
-    return jsonFetch(`${this.API_BASE}/${identifier}`);
+    return fetchJson(`${this.API_BASE}/${identifier}`);
   }
 }
 
@@ -167,7 +192,6 @@ class WaybackAPI {}
 export default {
   Auth: new Auth(),
   BookReaderAPI: new BookReaderAPI(),
-  DetailsPageAPI: new DetailsPageAPI(),
   GifcitiesAPI: new GifcitiesAPI(),
   MetadataAPI: new MetadataAPI(),
   RelatedAPI: new RelatedAPI(),
@@ -176,4 +200,5 @@ export default {
   SearchTextAPI: new SearchTextAPI(),
   ViewsAPI: new ViewsAPI(),
   WaybackAPI: new WaybackAPI(),
+  CORS_PROXY,
 };

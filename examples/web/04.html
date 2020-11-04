@@ -14,7 +14,7 @@
           <form id="form">
             <p>Type in email and password to login</p>
             <input type="text" name="username" placeholder="username" value="" />
-            <input type="password" name="password" placeholder="password" />
+            <input type="password" name="password" placeholder="password" value="" />
             <input type="submit" value="Login"></input>
           </form>
           <hr/>
@@ -38,10 +38,14 @@ formEl.onsubmit = function(e) {
   ia.Auth.login(
     formEl.elements.username.value,
     formEl.elements.password.value
-  ).then(function(response) {
-    console.log(response);
+  ).then(function(authResponse) {
+    // Uncomment to add a review after logging in
+    // ia.ReviewsAPI.add({
+    //   title: 'hello', body: 'world', stars: 5, identifier: "iajs-example-reviews", auth: authResponse
+    // }).then(console.log);
+
     var outEl = document.getElementById('out');
-    outEl.innerHTML = `<pre>${JSON.stringify(response,null, 2)}</pre>`;
+    outEl.innerHTML = `<pre>${JSON.stringify(authResponse,null, 2)}</pre>`;
   })
 };
 </script>
