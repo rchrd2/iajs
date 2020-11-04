@@ -52,6 +52,9 @@ formEl.onsubmit = function(e) {
     // };
     // ia.MetadataAPI.patch({ identifier: "iajs-example-reviews", patch, auth }).then(console.log);
 
+    // Uncomment to save page to wayback
+    // ia.WaybackAPI.savePageNow({url: "example.com", auth}).then(console.log);
+
     var outEl = document.getElementById('out');
     outEl.innerHTML = `<pre>${JSON.stringify(auth,null, 2)}</pre>`;
   })

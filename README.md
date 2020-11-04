@@ -18,8 +18,8 @@ NOTE: This is in an experimental phase and it will probably change a lot.
 - ✅ Sign in with s3 tokens
 - ✅ Add reviews (Reviews API)
 - ✅ Update item metadata (Metadata API)
+- ✅ Add page to Wayback (Save Page Now API)
 - Query the Wayback Machine
-- Add page to Wayback
 - Add/remove favorites
 
 ### p1

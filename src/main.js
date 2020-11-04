@@ -39,13 +39,25 @@ const authToHeader = function (auth) {
       }
     : {};
 };
+const authToCookies = function (auth) {
+  if (
+    auth.values.cookies["logged-in-sig"] &&
+    auth.values.cookies["logged-in-user"]
+  ) {
+    let cookieStr = `logged-in-sig=${auth.values.cookies["logged-in-sig"]};`;
+    cookieStr += ` logged-in-user=${auth.values.cookies["logged-in-user"]}`;
+    return { Cookie: cookieStr };
+  } else {
+    return {};
+  }
+};
 
 const newEmptyAuth = function () {
   return JSON.parse(
     JSON.stringify({
       success: false,
       values: {
-        cookies: {},
+        cookies: { "logged-in-sig": null, "logged-in-user": null },
         email: null,
         itemname: null,
         s3: { access: null, secret: null },
@@ -248,7 +260,46 @@ class ViewsAPI {
   }
 }
 
-class WaybackAPI {}
+class WaybackAPI {
+  constructor() {
+    this.API_BASE = "https://web.archive.org";
+  }
+  /**
+   * @see https://docs.google.com/document/d/1Nsv52MvSjbLb2PCpHlat0gkzw0EvtSgpKHu4mk0MnrA/edit
+   */
+  async savePageNow({
+    url = null,
+    captureOutlinks = 0,
+    captureAll = true,
+    captureScreenshot = false,
+    skipFirstArchive = true,
+    ifNotArchivedWithin = null,
+    auth = newEmptyAuth(),
+  } = {}) {
+    url = url.replace(/^https?\:\/\//, "");
+    const params = {
+      url,
+      capture_outlinks: captureOutlinks,
+      capture_all: captureAll ? "1" : "0",
+      capture_screenshot: captureScreenshot ? "1" : "0",
+      skip_first_archive: skipFirstArchive ? "1" : "0",
+    };
+    if (ifNotArchivedWithin) {
+      params.if_not_archived_within = ifNotArchivedWithin;
+    }
+    const response = await fetch(corsWorkAround(`${this.API_BASE}/save/`), {
+      credentials: "omit",
+      method: "POST",
+      body: new URLSearchParams(params).toString(),
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/x-www-form-urlencoded",
+        ...authToHeader(auth),
+      },
+    });
+    return await response.json();
+  }
+}
 
 export default {
   Auth: new Auth(),

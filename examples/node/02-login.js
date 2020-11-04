@@ -1,29 +1,25 @@
 const { Auth } = require("../..");
-
+const readline = require("readline");
 const log = console.log;
 
 const email = "hi@example.com";
 const password = "p@ssw0rd";
 
-/*
-{
-  "success": true,
-  "values": {
-    "cookies": {
-      "logged-in-sig": "x",
-      "logged-in-user": "x"
-    },
-    "email": "x",
-    "itemname": "@x",
-    "s3": {
-      "access": "x",
-      "secret": "x"
-    },
-    "screenname": "x"
-  },
-  "version": 1
-}
-*/
 (async () => {
-  log(await Auth.login(email, password));
+  // prompt for user/pass
+  let email = "";
+  let password = "";
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+  });
+  rl.question("email: ", (answer) => {
+    email = answer;
+    console.log(email);
+    rl.question("password (will be plain text): ", async (answer) => {
+      password = answer;
+      rl.close();
+      log(await Auth.login(email, password));
+    });
+  });
 })();
