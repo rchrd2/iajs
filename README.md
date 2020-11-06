@@ -22,9 +22,6 @@ NOTE: This is in an experimental phase and it will probably change a lot.
 - ✅ Add page to Wayback (Save Page Now API)
 - ✅ Query the Wayback Machine (CDX and Available APIs)
 - ✅ Add/remove/list favorites
-- Add OpenLibrary.org APIs
-- Add BookReaderJSIA aka manifest API
-- Add Book IIIF API
 
 ### p1
 
@@ -35,6 +32,9 @@ NOTE: This is in an experimental phase and it will probably change a lot.
 - List reviews by user
 - TV
 - Radio
+- Add OpenLibrary.org APIs
+- Add BookReaderJSIA aka manifest API
+- Add Book IIIF API
 - more tbd
 
 ### Library TODO:
