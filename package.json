@@ -28,6 +28,7 @@
   },
   "homepage": "https://github.com/rchrd2/iajs#readme",
   "dependencies": {
+    "fetch-jsonp": "^1.1.3",
     "node-fetch": "^2.6.1"
   },
   "devDependencies": {

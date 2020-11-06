@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+  </head>
+  <body>
+    <div class="shell">
+      <header>
+        <div class="left">
+          <p>
+            Wayback Machine (<a href="https://web.archive.org"></a>https://web.archive.org</a>) API examples.<br/>
+            Check if a webpage is archived and retrieve a list of archived versions.
+            <span id="next"><a href="05.html">&lt; Previous example</a> <!-- | <a href="06.html">Next example &gt;</a> --> </span>
+          </p>
+        </div>
+      </header>
+      <main>
+        <section>
+          <textarea class="language-javascript" id="code"></textarea>
+          <button id="run">Run</button>
+        </section>
+        <section>
+          <textarea id="console"></textarea>
+        </section>
+      </main>
+      <footer>
+        <b>iajs</b> examples | <a href="https://github.com/rchrd2/iajs">https://github.com/rchrd2/iajs</a>
+      </footer>
+    </div>
+<!-- --------------------- -->
+<script src="./ia.browser.js"></script>
+<script id="sourcecode">
+  function log(obj) {
+    var txt = JSON.stringify(obj, null, 2);
+    console.log(txt);
+    var c = document.getElementById('console');
+    c.value += txt + "\n";
+  }
+  // query the available api
+  ia.WaybackAPI.available({
+    url: "archive.org",
+    timestamp: "202011050000",
+  }).then(log);
+
+  // query cdx api
+  ia.WaybackAPI.cdx({
+    url: "archive.org",
+    matchType: "host",
+    limit: 2,
+  }).then(log)
+</script>
+<script src="./common.js"></script>
+<link rel="stylesheet" href="./water-2-light.css">
+<link rel="stylesheet" href="./common.css">
+<style>
+#console {
+  width: 100%;
+  height: 100%;
+  font-family: monospace;
+}
+</style>
+  </body>
+</html>

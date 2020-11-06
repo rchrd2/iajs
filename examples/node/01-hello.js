@@ -1,10 +1,11 @@
 const { GifcitiesAPI, MetadataAPI, RelatedAPI, SearchAPI } = require("../..");
 
 const log = console.log;
-const identifier = "example-png";
-const searchTerm = "nintendo";
 
 (async () => {
+  const identifier = "example-png";
+  const searchTerm = "nintendo";
+
   log(await MetadataAPI.get({ identifier, path: "metadata" }));
   log(await MetadataAPI.get({ identifier, path: "metadata/identifier" }));
   log(await RelatedAPI.get({ identifier }));

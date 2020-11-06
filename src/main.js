@@ -1,4 +1,5 @@
 import fetch from "node-fetch";
+import fetchJsonp from "fetch-jsonp";
 
 const log = console.log;
 const enc = encodeURIComponent;
@@ -70,9 +71,7 @@ const newEmptyAuth = function () {
 
 class Auth {
   constructor() {
-    this.XAUTH_URL = corsWorkAround(
-      "https://archive.org/services/xauthn/?op=login"
-    );
+    this.XAUTH_BASE = corsWorkAround("https://archive.org/services/xauthn/");
   }
   async login(email, password) {
     try {
@@ -83,7 +82,7 @@ class Auth {
           "Content-Type": "application/x-www-form-urlencoded",
         },
       };
-      const response = await fetch(this.XAUTH_URL, fetchOptions);
+      const response = await fetch(`${this.XAUTH_BASE}?op=login`, fetchOptions);
       const data = await response.json();
       if (!data.success) {
         data.values = { ...data.values, ...newEmptyAuth().values };
@@ -94,13 +93,12 @@ class Auth {
       return newEmptyAuth();
     }
   }
-  async fromS3(access, secret) {
-    const newAuth = newEmpthAuth();
+  async fromS3(access, secret, newAuth = newEmptyAuth()) {
     newAuth.success = 1;
     newAuth.values.s3.access = access;
     newAuth.values.s3.secret = secret;
     const info = await fetchJson("https://s3.us.archive.org?check_auth=1", {
-      headers: authToHeader(auth),
+      headers: authToHeader(newAuth),
     });
     newAuth.values.email = info.username;
     newAuth.values.itemname = info.itemname;
@@ -108,6 +106,26 @@ class Auth {
     // Note the auth object is missing cookie fields.
     // It is still TBD if those are needed
     return newAuth;
+  }
+  async fromCookies(loggedInSig, loggedInUser, newAuth = newEmptyAuth()) {
+    newAuth.values.cookies["logged-in-sig"] = loggedInSig;
+    newAuth.values.cookies["logged-in-user"] = loggedInUser;
+    const cookieHeaderKey = isInBrowser() ? "X-Cookie-Cors" : "Cookie";
+    const headers = {};
+    headers[
+      cookieHeaderKey
+    ] = `logged-in-sig=${loggedInSig}; logged-in-user=${loggedInUser}`;
+    const s3response = await fetch(
+      corsWorkAround("https://archive.org/account/s3.php?output_json=1"),
+      {
+        headers,
+      }
+    );
+    const s3 = await s3response.json();
+    if (!s3.success) {
+      throw new Error();
+    }
+    return await this.fromS3(s3.key.s3accesskey, s3.key.s3secretkey, newAuth);
   }
 }
 
@@ -128,14 +146,15 @@ class GifcitiesAPI {
 
 class MetadataAPI {
   constructor() {
-    this.API_BASE = "https://archive.org/metadata";
+    this.READ_API_BASE = "https://archive.org/metadata";
+    this.WRITE_API_BASE = corsWorkAround("https://archive.org/metadata");
   }
   async get({ identifier = null, path = "", auth = newEmptyAuth() } = {}) {
     const options = {};
     if (auth.values.s3.access) {
       options.headers = authToHeader(auth);
     }
-    return fetchJson(`${this.API_BASE}/${identifier}/${path}`, options);
+    return fetchJson(`${this.READ_API_BASE}/${identifier}/${path}`, options);
   }
   async patch({
     identifier = null,
@@ -150,7 +169,7 @@ class MetadataAPI {
       secret: auth.values.s3.secret,
       access: auth.values.s3.access,
     };
-    const url = corsWorkAround(`${this.API_BASE}/${identifier}`);
+    const url = `${this.WRITE_API_BASE}/${identifier}`;
     const body = new URLSearchParams(reqParams).toString();
     const response = await fetch(url, {
       method: "POST",
@@ -177,7 +196,7 @@ class ReviewsAPI {
     this.WRITE_API_BASE = corsWorkAround(
       "https://archive.org/services/reviews.php?identifier="
     );
-    this.READ_API_BASE = "https://archive.org/metadata/";
+    this.READ_API_BASE = "https://archive.org/metadata";
   }
   async get({ identifier = null } = {}) {
     return fetchJson(`${this.READ_API_BASE}/${identifier}/reviews`);
@@ -262,7 +281,40 @@ class ViewsAPI {
 
 class WaybackAPI {
   constructor() {
-    this.API_BASE = "https://web.archive.org";
+    this.AVAILABLE_API_BASE = "https://archive.org/wayback/available";
+    this.CDX_API_BASE = corsWorkAround("https://web.archive.org/cdx/search/");
+    this.SAVE_API_BASE = corsWorkAround("https://web.archive.org/save/");
+  }
+  /**
+   * @see https://archive.org/help/wayback_api.php
+   */
+  async available({ url = null, timestamp = null } = {}) {
+    const params = { url };
+    if (timestamp !== null) {
+      params.timestamp = timestamp;
+    }
+    const searchParams = new URLSearchParams(params).toString();
+    const fetchFunction = isInBrowser() ? fetchJsonp : fetch;
+    const response = await fetchFunction(
+      `${this.AVAILABLE_API_BASE}?${searchParams}`
+    );
+    return await response.json();
+  }
+  /**
+   * @see https://github.com/internetarchive/wayback/tree/master/wayback-cdx-server
+   */
+  async cdx(options = {}) {
+    options.output = "json";
+    const searchParams = new URLSearchParams(options).toString();
+    const response = await fetch(`${this.CDX_API_BASE}?${searchParams}`);
+    const raw = await response.text();
+    let json;
+    try {
+      json = JSON.parse(raw);
+    } catch (e) {
+      json = { error: raw.trim() };
+    }
+    return json;
   }
   /**
    * @see https://docs.google.com/document/d/1Nsv52MvSjbLb2PCpHlat0gkzw0EvtSgpKHu4mk0MnrA/edit
@@ -287,7 +339,7 @@ class WaybackAPI {
     if (ifNotArchivedWithin) {
       params.if_not_archived_within = ifNotArchivedWithin;
     }
-    const response = await fetch(corsWorkAround(`${this.API_BASE}/save/`), {
+    const response = await fetch(this.SAVE_API_BASE, {
       credentials: "omit",
       method: "POST",
       body: new URLSearchParams(params).toString(),
@@ -312,5 +364,4 @@ export default {
   SearchTextAPI: new SearchTextAPI(),
   ViewsAPI: new ViewsAPI(),
   WaybackAPI: new WaybackAPI(),
-  CORS_PROXY,
 };

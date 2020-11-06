@@ -1,35 +1,26 @@
 const { Auth, ReviewsAPI } = require("../..");
 const fetch = require("node-fetch");
 const readline = require("readline");
+const { getTestAuth } = require("./common");
 
 const log = console.log;
 const enc = encodeURIComponent;
 
 (async () => {
-  const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout,
-  });
+  let auth = await getTestAuth();
 
-  let email = "";
-  let password = "";
+  const identifier = "iajs-example-reviews";
+  const title = "Hello, World!";
+  const body = `The date is ${new Date().toISOString()}`;
+  const stars = 5;
 
-  rl.question("email: ", (answer) => {
-    email = answer;
-    console.log(email);
-    rl.question("password (will be plain text): ", async (answer) => {
-      password = answer;
-      rl.close();
+  log(`Adding a review to ${identifier} from user ${auth.values.itemname}.`);
+  await ReviewsAPI.add({ identifier, title, body, stars, auth });
+  log(`https://archive.org/details/${identifier}`);
 
-      const auth = await Auth.login(email, password);
+  log("Pausing for a second to let it process.");
+  await new Promise((resolve) => setTimeout(resolve, 1000));
 
-      const identifier = "iajs-example-reviews";
-      let title = "Hello, World!";
-      let body = `The date is ${new Date().toISOString()}`;
-      let stars = 5;
-      await ReviewsAPI.add({ identifier, title, body, stars, auth });
-
-      // TODO handle exception
-    });
-  });
+  log(`Listing reviews of the item ${auth.values.itemname}.`);
+  log(await ReviewsAPI.get({ identifier }));
 })();
