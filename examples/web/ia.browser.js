@@ -129,9 +129,11 @@
 	});
 	});
 
-	const enc = encodeURIComponent;
 	const REQUIRED = "__REQUIRED__";
 	let CORS_PROXY = "https://iajs-cors.rchrd2.workers.dev";
+	const enc = encodeURIComponent;
+	const paramify = (obj) => new URLSearchParams(obj).toString();
+	const str2arr = (v) => (Array.isArray(v) ? v : [v]);
 
 	const isInBrowser = () => {
 	  return !(typeof window === "undefined");
@@ -150,12 +152,28 @@
 	  return await res.json();
 	};
 
-	const authToHeader = function (auth) {
+	const authToHeaderS3 = function (auth) {
 	  return auth.values.s3.access && auth.values.s3.secret
 	    ? {
 	        Authorization: `LOW ${auth.values.s3.access}:${auth.values.s3.secret}`,
 	      }
 	    : {};
+	};
+	const authToHeaderCookies = function (auth) {
+	  if (
+	    auth.values.cookies["logged-in-sig"] &&
+	    auth.values.cookies["logged-in-user"]
+	  ) {
+	    let cookieStr = `logged-in-sig=${auth.values.cookies["logged-in-sig"]};`;
+	    cookieStr += ` logged-in-user=${auth.values.cookies["logged-in-user"]}`;
+	    const headers = { Cookie: cookieStr };
+	    if (isInBrowser()) {
+	      headers["X-Cookie-Cors"] = cookieStr;
+	    }
+	    return headers;
+	  } else {
+	    return {};
+	  }
 	};
 
 	const newEmptyAuth = function () {
@@ -203,7 +221,7 @@
 	    newAuth.values.s3.access = access;
 	    newAuth.values.s3.secret = secret;
 	    const info = await fetchJson("https://s3.us.archive.org?check_auth=1", {
-	      headers: authToHeader(newAuth),
+	      headers: authToHeaderS3(newAuth),
 	    });
 	    newAuth.values.email = info.username;
 	    newAuth.values.itemname = info.itemname;
@@ -215,15 +233,10 @@
 	  async fromCookies(loggedInSig, loggedInUser, newAuth = newEmptyAuth()) {
 	    newAuth.values.cookies["logged-in-sig"] = loggedInSig;
 	    newAuth.values.cookies["logged-in-user"] = loggedInUser;
-	    const cookieHeaderKey = isInBrowser() ? "X-Cookie-Cors" : "Cookie";
-	    const headers = {};
-	    headers[
-	      cookieHeaderKey
-	    ] = `logged-in-sig=${loggedInSig}; logged-in-user=${loggedInUser}`;
 	    const s3response = await fetch(
 	      corsWorkAround("https://archive.org/account/s3.php?output_json=1"),
 	      {
-	        headers,
+	        headers: authToHeaderCookies(newAuth),
 	      }
 	    );
 	    const s3 = await s3response.json();
@@ -236,13 +249,60 @@
 
 	class BookReaderAPI {}
 
+	class FavoritesAPI {
+	  constructor() {
+	    this.API_BASE = corsWorkAround("https://archive.org/bookmarks.php");
+	    // TODO support this non-json explore endpoint
+	    this.EXPLORE_API_BASE = "https://archive.org/bookmarks-explore.php";
+	  }
+	  async get({ screenname = null, auth = newEmptyAuth() }) {
+	    if (!screenname && auth.values.screenname) {
+	      screenname = auth.values.screenname;
+	    }
+	    if (screenname) {
+	      let params = { output: "json", screenname };
+	      return await fetchJson(`${this.API_BASE}?${paramify(params)}`);
+	    } else {
+	      throw new Error(
+	        "Neither screenname or auth provided for bookmarks lookup"
+	      );
+	    }
+	  }
+	  async add({ identifier = null, comments = "", auth = newEmptyAuth() } = {}) {
+	    return await this.modify({ identifier, add_bookmark: 1 }, auth);
+	  }
+	  async remove({ identifier = null, auth = null } = {}) {
+	    return await this.modify({ identifier, del_bookmark: identifier }, auth);
+	  }
+	  async modify(params, auth) {
+	    try {
+	      let mdResponse = await iajs.MetadataAPI.get({
+	        identifier: params.identifier,
+	        path: "/metadata",
+	      });
+	      params.title = str2arr(mdResponse.result.title).join(", ");
+	      params.mediatype = mdResponse.result.mediatype;
+	    } catch (e) {
+	      throw new Error(`Metadata lookup failed for: ${params.identifier}`);
+	    }
+	    params.output = "json";
+	    const response = await fetch(`${this.API_BASE}?${paramify(params)}`, {
+	      method: "POST",
+	      headers: authToHeaderCookies(auth),
+	    });
+	    return await response.json().catch((e) => {
+	      return { error: e };
+	    });
+	  }
+	}
+
 	class GifcitiesAPI {
 	  constructor() {
 	    this.API_BASE = "https://gifcities.archive.org/api/v1/gifsearch";
 	  }
 	  async get({ q = null } = {}) {
 	    if (q === null) return [];
-	    return fetchJson(`${this.API_BASE}?q=${encodeURIComponent(q)}`);
+	    return fetchJson(`${this.API_BASE}?q=${enc(q)}`);
 	  }
 	  async search(q) {
 	    return this.get({ q });
@@ -256,9 +316,7 @@
 	  }
 	  async get({ identifier = null, path = "", auth = newEmptyAuth() } = {}) {
 	    const options = {};
-	    if (auth.values.s3.access) {
-	      options.headers = authToHeader(auth);
-	    }
+	    options.headers = authToHeaderS3(auth);
 	    return fetchJson(`${this.READ_API_BASE}/${identifier}/${path}`, options);
 	  }
 	  async patch({
@@ -277,7 +335,7 @@
 	      access: auth.values.s3.access,
 	    };
 	    const url = `${this.WRITE_API_BASE}/${identifier}`;
-	    const body = new URLSearchParams(reqParams).toString();
+	    const body = paramify(reqParams);
 	    const response = await fetch(url, {
 	      method: "POST",
 	      body,
@@ -321,7 +379,7 @@
 	      body: JSON.stringify({ title, body, stars }),
 	      headers: {
 	        "Content-Type": "application/json",
-	        ...authToHeader(auth),
+	        ...authToHeaderS3(auth),
 	      },
 	    });
 	    return await response.json();
@@ -352,7 +410,7 @@
 	    // if (required !== null) {
 	    //   return { required };
 	    // }
-	    const encodedParams = new URLSearchParams(reqParams).toString();
+	    const encodedParams = paramify(reqParams);
 	    const url = `${this.API_BASE}?${encodedParams}`;
 	    return fetchJson(url);
 	  }
@@ -400,7 +458,7 @@
 	    if (timestamp !== null) {
 	      params.timestamp = timestamp;
 	    }
-	    const searchParams = new URLSearchParams(params).toString();
+	    const searchParams = paramify(params);
 	    const fetchFunction = isInBrowser() ? fetchJsonp : fetch;
 	    const response = await fetchFunction(
 	      `${this.AVAILABLE_API_BASE}?${searchParams}`
@@ -412,7 +470,7 @@
 	   */
 	  async cdx(options = {}) {
 	    options.output = "json";
-	    const searchParams = new URLSearchParams(options).toString();
+	    const searchParams = paramify(options);
 	    const response = await fetch(`${this.CDX_API_BASE}?${searchParams}`);
 	    const raw = await response.text();
 	    let json;
@@ -449,21 +507,22 @@
 	    const response = await fetch(this.SAVE_API_BASE, {
 	      credentials: "omit",
 	      method: "POST",
-	      body: new URLSearchParams(params).toString(),
+	      body: paramify(params),
 	      headers: {
 	        Accept: "application/json",
 	        "Content-Type": "application/x-www-form-urlencoded",
-	        ...authToHeader(auth),
+	        ...authToHeaderS3(auth),
 	      },
 	    });
 	    return await response.json();
 	  }
 	}
 
-	var main = {
+	const iajs = {
 	  Auth: new Auth(),
 	  BookReaderAPI: new BookReaderAPI(),
 	  GifcitiesAPI: new GifcitiesAPI(),
+	  FavoritesAPI: new FavoritesAPI(),
 	  MetadataAPI: new MetadataAPI(),
 	  RelatedAPI: new RelatedAPI(),
 	  ReviewsAPI: new ReviewsAPI(),
@@ -473,6 +532,6 @@
 	  WaybackAPI: new WaybackAPI(),
 	};
 
-	return main;
+	return iajs;
 
 })));

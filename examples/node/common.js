@@ -74,7 +74,7 @@ async function yesno({ question, defaultValue, yesValues, noValues, invalid }) {
       if (yesValues.indexOf(cleaned) >= 0) return resolve(true);
       if (noValues.indexOf(cleaned) >= 0) return resolve(false);
       invalid({ question, defaultValue, yesValues, noValues });
-      const result = await ask({
+      const result = await yesno({
         question,
         defaultValue,
         yesValues,

@@ -21,7 +21,7 @@ NOTE: This is in an experimental phase and it will probably change a lot.
 - ✅ Add reviews (Reviews API)
 - ✅ Add page to Wayback (Save Page Now API)
 - ✅ Query the Wayback Machine (CDX and Available APIs)
-- Add/remove/list favorites
+- ✅ Add/remove/list favorites
 - Add OpenLibrary.org APIs
 - Add BookReaderJSIA aka manifest API
 - Add Book IIIF API
@@ -33,6 +33,8 @@ NOTE: This is in an experimental phase and it will probably change a lot.
 - Generate embed codes for books/videos/music files in item
 - Include a JSON diff library
 - List reviews by user
+- TV
+- Radio
 - more tbd
 
 ### Library TODO:

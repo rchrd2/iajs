@@ -1,5 +1,4 @@
 const { WaybackAPI, Auth } = require("../..");
-const readline = require("readline");
 const { getTestAuth, yesno, promptStr } = require("./common");
 const log = console.log;
 
