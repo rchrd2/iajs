@@ -264,6 +264,7 @@
 	  async patch({
 	    identifier = null,
 	    target = "metadata",
+	    priority = -5,
 	    patch = {},
 	    auth = newEmptyAuth(),
 	  } = {}) {
@@ -271,6 +272,7 @@
 	    const reqParams = {
 	      "-target": target,
 	      "-patch": JSON.stringify(patch),
+	      priority,
 	      secret: auth.values.s3.secret,
 	      access: auth.values.s3.access,
 	    };
