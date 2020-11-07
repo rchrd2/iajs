@@ -1,7 +1,6 @@
 import fetch from "node-fetch";
 import fetchJsonp from "fetch-jsonp";
 
-const REQUIRED = "__REQUIRED__";
 let CORS_PROXY = "https://iajs-cors.rchrd2.workers.dev";
 
 const log = console.log;
@@ -24,16 +23,6 @@ const corsWorkAround = (url) => {
 const fetchJson = async function (url, options) {
   const res = await fetch(url, options);
   return await res.json();
-};
-
-const checkRequired = function (options) {
-  return null; // TODO
-  for (k in options) {
-    if (options[k] == REQUIRED) {
-      return k;
-    }
-  }
-  return null;
 };
 
 const authToHeaderS3 = function (auth) {
@@ -281,6 +270,24 @@ class S3API {
     }
     return await (await fetch(`${this.API_BASE}/${identifier}`)).text();
   }
+  async createEmptyItem({
+    identifier = null,
+    testItem = false,
+    metadata = {},
+    headers = {},
+    wait = true,
+    auth = newEmptyAuth(),
+  } = {}) {
+    return await this.upload({
+      identifier,
+      testItem,
+      metadata,
+      headers,
+      wait,
+      auth,
+      autocreate: true,
+    });
+  }
   async upload({
     identifier = null,
     key = null,
@@ -349,12 +356,10 @@ class SearchAPI {
   constructor() {
     this.API_BASE = "https://archive.org/advancedsearch.php";
   }
-  async get({
-    q = REQUIRED,
-    page = 1,
-    fields = ["identifier"],
-    ...options
-  } = {}) {
+  async get({ q = null, page = 1, fields = ["identifier"], ...options } = {}) {
+    if (!q) {
+      throw new Error("Missing required arg 'q'");
+    }
     if (typeof q == "object") {
       q = this.buildQueryFromObject(q);
     }
@@ -365,10 +370,6 @@ class SearchAPI {
       ...options,
       output: "json",
     };
-    // let required = checkRequired(reqParams);
-    // if (required !== null) {
-    //   return { required };
-    // }
     const encodedParams = paramify(reqParams);
     const url = `${this.API_BASE}?${encodedParams}`;
     return fetchJson(url);

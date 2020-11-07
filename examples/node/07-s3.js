@@ -41,10 +41,9 @@ const log = console.log;
       description: `The date is ${new Date().toISOString()}`,
     };
     log(
-      await S3API.upload({
+      await S3API.createEmptyItem({
         identifier: newIdentifier,
         metadata,
-        autocreate: true,
         testItem: true,
         auth,
         wait: false,
