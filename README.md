@@ -6,6 +6,20 @@ NOTE: This is in an experimental phase and it will probably change a lot.
 
 <https://rchrd2.github.io/iajs/examples/web/01.html>
 
+## Running nodejs examples
+
+```
+npm i
+node examples/node/01-hello.js
+
+# this will ask you to sign in and create a login config file for other examples
+node examples/node/02-login.js
+
+node examples/node/03-reviews.js
+
+# and so on...
+```
+
 ## Planned features
 
 ### p0

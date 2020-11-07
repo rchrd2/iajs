@@ -17,6 +17,26 @@ async function promptStr(prompt) {
   });
 }
 
+async function promptPw(prompt) {
+  return new Promise((resolve, reject) => {
+    const rl = readline.createInterface({
+      input: process.stdin,
+      output: process.stdout,
+    });
+    rl.stdoutMuted = true;
+
+    rl.question(prompt, (answer) => {
+      resolve(answer);
+      rl.close();
+    });
+
+    rl._writeToOutput = function _writeToOutput(stringToWrite) {
+      if (rl.stdoutMuted) rl.output.write("*");
+      else rl.output.write(stringToWrite);
+    };
+  });
+}
+
 async function getTestAuth() {
   console.log(`Reading: ${testConfigPath}`);
 
@@ -30,7 +50,7 @@ async function getTestAuth() {
   console.log("Test config not found.");
   console.log("Log in with a test account to create one");
   let email = await promptStr("email: ");
-  let password = await promptStr("password (will not be saved): ");
+  let password = await promptPw("password (will not be saved): ");
   let auth = await Auth.login(email, password);
   fs.writeFileSync(testConfigPath, JSON.stringify(auth, null, 2));
   console.log(`Wrote config to ${testConfigPath}`);
