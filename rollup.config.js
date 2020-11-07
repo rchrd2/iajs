@@ -5,7 +5,7 @@ import pkg from "./package.json";
 export default [
   {
     input: "src/main.js",
-    external: ["node-fetch"],
+    external: ["node-fetch", "xmldom"],
     output: [
       { name: "ia", file: pkg.browser, format: "umd" },
       { name: "ia", file: "examples/web/ia.browser.js", format: "umd" },

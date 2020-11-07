@@ -1,5 +1,6 @@
 import fetch from "node-fetch";
 import fetchJsonp from "fetch-jsonp";
+import { DOMParser } from "xmldom";
 
 let CORS_PROXY = "https://iajs-cors.rchrd2.workers.dev";
 
@@ -478,6 +479,70 @@ class WaybackAPI {
   }
 }
 
+class ZipFileAPI {
+  /**
+   * List the contents of a zip file in an item
+   * Eg: https://archive.org/download/goodytwoshoes00newyiala/goodytwoshoes00newyiala_jp2.zip/
+   */
+  async ls(identifier, zipPath, auth = newEmptyAuth()) {
+    if (!zipPath.match(/\.(7z|cbr|cbz|cdr|iso|rar|tar|zip)$/)) {
+      throw new Error("Invalid zip type");
+    }
+    const requestUrl = corsWorkAround(
+      `https://archive.org/download/${identifier}/${enc(zipPath)}/`
+    );
+    const response = await fetch(requestUrl, {
+      headers: authToHeaderCookies(auth),
+    });
+    if (response.status != 200) {
+      throw Error({ error: "not found" });
+    }
+
+    const html = await response.text();
+
+    // This page has <td>'s without closing el tags (took a while to
+    // figure this out). This breaks the DOMparser, so I added a workaround
+    // to add closing tags
+    let tableHtml = html.match(/(<table class="archext">[\w\W]*<\/table>)/g)[0];
+    tableHtml = tableHtml.replace(
+      /(<td[^>]*>[\w\W]*?)(?=<(?:td|\/tr))/g,
+      "$1</td>"
+    );
+
+    let table = new DOMParser().parseFromString(tableHtml);
+    const rows = table.getElementsByTagName("tr");
+    const results = [];
+    for (let i = 0; i < rows.length; i++) {
+      let cells = rows.item(i).getElementsByTagName("td");
+      if (cells.length != 4) continue;
+      try {
+        let a = cells.item(0).getElementsByTagName("a").item(0);
+        results.push({
+          key: a.textContent,
+          href: "https:" + a.getAttribute("href"),
+          jpegUrl: (() => {
+            try {
+              return (
+                "https:" +
+                cells
+                  .item(1)
+                  .getElementsByTagName("a")
+                  .item(0)
+                  .getAttribute("href")
+              );
+            } catch (e) {
+              return null;
+            }
+          })(),
+          timestamp: cells.item(2).textContent,
+          size: cells.item(3).textContent,
+        });
+      } catch (e) {}
+    }
+    return results;
+  }
+}
+
 const iajs = {
   Auth: new Auth(),
   BookReaderAPI: new BookReaderAPI(),
@@ -491,6 +556,7 @@ const iajs = {
   S3API: new S3API(),
   ViewsAPI: new ViewsAPI(),
   WaybackAPI: new WaybackAPI(),
+  ZipFileAPI: new ZipFileAPI(),
 };
 
 export default iajs;
