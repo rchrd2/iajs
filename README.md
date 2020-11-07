@@ -17,24 +17,24 @@ NOTE: This is in an experimental phase and it will probably change a lot.
 - ✅ Query related item API (Related Items API)
 - ✅ Sign in with user/pass (Xauthn API)
 - ✅ Sign in with s3 tokens
-- ✅ Sign in from cookies
+- ✅ Sign in from archive.org session cookies
 - ✅ Add reviews (Reviews API)
 - ✅ Add page to Wayback (Save Page Now API)
 - ✅ Query the Wayback Machine (CDX and Available APIs)
-- ✅ Add/remove/list favorites
+- ✅ Add/remove/list favorites (bookmarks.php API)
+- ✅ Create items (S3 API)
+- ✅ Upload item files (S3 API)
 
 ### p1
 
-- Upload item files
-- Create items
-- Generate embed codes for books/videos/music files in item
-- Include a JSON diff library
-- List reviews by user
+- OpenLibrary.org APIs
+- BookReaderJSIA aka manifest API
+- Book IIIF API
 - TV
 - Radio
-- Add OpenLibrary.org APIs
-- Add BookReaderJSIA aka manifest API
-- Add Book IIIF API
+- List reviews by user
+- Generate embed codes for books/videos/music files in item
+- Include a JSON diff library
 - more tbd
 
 ### Library TODO:

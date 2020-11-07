@@ -386,6 +386,81 @@
 	  }
 	}
 
+	class S3API {
+	  constructor() {
+	    this.API_BASE = "https://s3.us.archive.org";
+	  }
+	  async ls({ identifier = null, auth = newEmptyAuth() } = {}) {
+	    // throw new Error("TODO parse that XML");
+	    if (!identifier) {
+	      throw new Error("Missing required args");
+	    }
+	    return await (await fetch(`${this.API_BASE}/${identifier}`)).text();
+	  }
+	  async upload({
+	    identifier = null,
+	    key = null,
+	    body = "",
+	    autocreate = false,
+	    skipDerive = false,
+	    testItem = false,
+	    keepOldVersions = true,
+	    metadata = {},
+	    headers = {},
+	    wait = true,
+	    auth = newEmptyAuth(),
+	  }) {
+	    if (!identifier) {
+	      throw new Error("Missing required args");
+	    }
+
+	    if (testItem) {
+	      metadata["collection"] = "test_collection";
+	    }
+
+	    const requestHeaders = {};
+	    Object.keys(metadata).forEach((k) => {
+	      str2arr(metadata[k]).forEach((v, idx) => {
+	        k = k.replace(/_/g, "--");
+	        let headerKey = `x-archive-meta${idx}-${k}`;
+	        requestHeaders[headerKey] = v;
+	      });
+	    });
+
+	    Object.assign(requestHeaders, headers, authToHeaderS3(auth));
+
+	    if (autocreate) {
+	      requestHeaders["x-archive-auto-make-bucket"] = 1;
+	    }
+	    if (skipDerive) {
+	      requestHeaders["x-archive-queue-derive"] = 0;
+	    }
+	    requestHeaders["x-archive-keep-old-version"] = keepOldVersions ? 1 : 0;
+
+	    const requestUrl = key
+	      ? `${this.API_BASE}/${identifier}/${key}`
+	      : `${this.API_BASE}/${identifier}`;
+
+	    const response = await fetch(requestUrl, {
+	      method: "PUT",
+	      headers: requestHeaders,
+	      body,
+	    });
+
+	    if (response.status !== 200) {
+	      // NOTE this may not be the right thing to check.
+	      // Maybe different codes are okay
+	      throw new Error(`Response: ${response.status}`);
+	    }
+
+	    if (!wait) {
+	      return response;
+	    }
+	    // The finished response seems to be empty
+	    return await response.text();
+	  }
+	}
+
 	class SearchAPI {
 	  constructor() {
 	    this.API_BASE = "https://archive.org/advancedsearch.php";
@@ -528,6 +603,7 @@
 	  ReviewsAPI: new ReviewsAPI(),
 	  SearchAPI: new SearchAPI(),
 	  SearchTextAPI: new SearchTextAPI(),
+	  S3API: new S3API(),
 	  ViewsAPI: new ViewsAPI(),
 	  WaybackAPI: new WaybackAPI(),
 	};
