@@ -1,6 +1,16 @@
-WIP Internet Archive JavaScript and NodeJS client
+# iajs
 
-NOTE: This is in an experimental phase and it will probably change a lot.
+**Internet Archive JavaScript Client which supports reading and writing data in NodeJS and the Browser**
+
+The Internet Archive is a non-profit open platform for archiving the world's free websites, books, movies, software, music, and more.
+
+This JavaScript library enables reading and writing to the Internet Archive APIs in NodeJS **and** in the browser. To learn more about the Internet Archive visit <https://archive.org/about/>.
+
+It's lightweight with very little dependencies.
+
+The major APIs are documented here <https://archive.org/services/docs/api/index.html>, but this library supports additional APIs to enable more functionality. It does not abstract much from the APIs, but rather aggregates access to them all in a single multi-purpose library.
+
+This library contains enough functionality to create powerful experiments and new experiences using the Internet Archive's platform and data.
 
 ## Live demos
 
