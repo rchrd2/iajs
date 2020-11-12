@@ -1,286 +1,143 @@
+var _objectWithoutProperties = require("@babel/runtime/helpers/objectWithoutProperties");
+
+var _defineProperty = require("@babel/runtime/helpers/defineProperty");
+
+var _classCallCheck = require("@babel/runtime/helpers/classCallCheck");
+
+var _createClass = require("@babel/runtime/helpers/createClass");
+
+var _regeneratorRuntime = require("@babel/runtime/regenerator");
+
+var _asyncToGenerator = require("@babel/runtime/helpers/asyncToGenerator");
+
+var _typeof = require("@babel/runtime/helpers/typeof");
+
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
+
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
+
 (function (global, factory) {
-  typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('node-fetch'), require('xmldom')) :
-  typeof define === 'function' && define.amd ? define(['node-fetch', 'xmldom'], factory) :
-  (global = global || self, global.ia = factory(global.fetch, global.xmldom));
-}(this, (function (fetch, xmldom) { 'use strict';
+  (typeof exports === "undefined" ? "undefined" : _typeof(exports)) === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('node-fetch'), require('xmldom')) : typeof define === 'function' && define.amd ? define(['node-fetch', 'xmldom'], factory) : (global = global || self, global.ia = factory(global.fetch, global.xmldom));
+})(this, function (fetch, xmldom) {
+  'use strict';
 
   fetch = fetch && Object.prototype.hasOwnProperty.call(fetch, 'default') ? fetch['default'] : fetch;
-
-  function _typeof(obj) {
-    "@babel/helpers - typeof";
-
-    if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") {
-      _typeof = function (obj) {
-        return typeof obj;
-      };
-    } else {
-      _typeof = function (obj) {
-        return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
-      };
-    }
-
-    return _typeof(obj);
-  }
-
-  function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) {
-    try {
-      var info = gen[key](arg);
-      var value = info.value;
-    } catch (error) {
-      reject(error);
-      return;
-    }
-
-    if (info.done) {
-      resolve(value);
-    } else {
-      Promise.resolve(value).then(_next, _throw);
-    }
-  }
-
-  function _asyncToGenerator(fn) {
-    return function () {
-      var self = this,
-          args = arguments;
-      return new Promise(function (resolve, reject) {
-        var gen = fn.apply(self, args);
-
-        function _next(value) {
-          asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value);
-        }
-
-        function _throw(err) {
-          asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err);
-        }
-
-        _next(undefined);
-      });
-    };
-  }
-
-  function _classCallCheck(instance, Constructor) {
-    if (!(instance instanceof Constructor)) {
-      throw new TypeError("Cannot call a class as a function");
-    }
-  }
-
-  function _defineProperties(target, props) {
-    for (var i = 0; i < props.length; i++) {
-      var descriptor = props[i];
-      descriptor.enumerable = descriptor.enumerable || false;
-      descriptor.configurable = true;
-      if ("value" in descriptor) descriptor.writable = true;
-      Object.defineProperty(target, descriptor.key, descriptor);
-    }
-  }
-
-  function _createClass(Constructor, protoProps, staticProps) {
-    if (protoProps) _defineProperties(Constructor.prototype, protoProps);
-    if (staticProps) _defineProperties(Constructor, staticProps);
-    return Constructor;
-  }
-
-  function _defineProperty(obj, key, value) {
-    if (key in obj) {
-      Object.defineProperty(obj, key, {
-        value: value,
-        enumerable: true,
-        configurable: true,
-        writable: true
-      });
-    } else {
-      obj[key] = value;
-    }
-
-    return obj;
-  }
-
-  function ownKeys(object, enumerableOnly) {
-    var keys = Object.keys(object);
-
-    if (Object.getOwnPropertySymbols) {
-      var symbols = Object.getOwnPropertySymbols(object);
-      if (enumerableOnly) symbols = symbols.filter(function (sym) {
-        return Object.getOwnPropertyDescriptor(object, sym).enumerable;
-      });
-      keys.push.apply(keys, symbols);
-    }
-
-    return keys;
-  }
-
-  function _objectSpread2(target) {
-    for (var i = 1; i < arguments.length; i++) {
-      var source = arguments[i] != null ? arguments[i] : {};
-
-      if (i % 2) {
-        ownKeys(Object(source), true).forEach(function (key) {
-          _defineProperty(target, key, source[key]);
-        });
-      } else if (Object.getOwnPropertyDescriptors) {
-        Object.defineProperties(target, Object.getOwnPropertyDescriptors(source));
-      } else {
-        ownKeys(Object(source)).forEach(function (key) {
-          Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key));
-        });
-      }
-    }
-
-    return target;
-  }
-
-  function _objectWithoutPropertiesLoose(source, excluded) {
-    if (source == null) return {};
-    var target = {};
-    var sourceKeys = Object.keys(source);
-    var key, i;
-
-    for (i = 0; i < sourceKeys.length; i++) {
-      key = sourceKeys[i];
-      if (excluded.indexOf(key) >= 0) continue;
-      target[key] = source[key];
-    }
-
-    return target;
-  }
-
-  function _objectWithoutProperties(source, excluded) {
-    if (source == null) return {};
-
-    var target = _objectWithoutPropertiesLoose(source, excluded);
-
-    var key, i;
-
-    if (Object.getOwnPropertySymbols) {
-      var sourceSymbolKeys = Object.getOwnPropertySymbols(source);
-
-      for (i = 0; i < sourceSymbolKeys.length; i++) {
-        key = sourceSymbolKeys[i];
-        if (excluded.indexOf(key) >= 0) continue;
-        if (!Object.prototype.propertyIsEnumerable.call(source, key)) continue;
-        target[key] = source[key];
-      }
-    }
-
-    return target;
-  }
-
   var commonjsGlobal = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
 
   function createCommonjsModule(fn, module) {
-  	return module = { exports: {} }, fn(module, module.exports), module.exports;
+    return module = {
+      exports: {}
+    }, fn(module, module.exports), module.exports;
   }
 
   var fetchJsonp = createCommonjsModule(function (module, exports) {
-  (function (global, factory) {
-    {
-      factory(exports, module);
-    }
-  })(commonjsGlobal, function (exports, module) {
-
-    var defaultOptions = {
-      timeout: 5000,
-      jsonpCallback: 'callback',
-      jsonpCallbackFunction: null
-    };
-
-    function generateCallbackFunction() {
-      return 'jsonp_' + Date.now() + '_' + Math.ceil(Math.random() * 100000);
-    }
-
-    function clearFunction(functionName) {
-      // IE8 throws an exception when you try to delete a property on window
-      // http://stackoverflow.com/a/1824228/751089
-      try {
-        delete window[functionName];
-      } catch (e) {
-        window[functionName] = undefined;
+    (function (global, factory) {
+      {
+        factory(exports, module);
       }
-    }
+    })(commonjsGlobal, function (exports, module) {
+      var defaultOptions = {
+        timeout: 5000,
+        jsonpCallback: 'callback',
+        jsonpCallbackFunction: null
+      };
 
-    function removeScript(scriptId) {
-      var script = document.getElementById(scriptId);
-
-      if (script) {
-        document.getElementsByTagName('head')[0].removeChild(script);
+      function generateCallbackFunction() {
+        return 'jsonp_' + Date.now() + '_' + Math.ceil(Math.random() * 100000);
       }
-    }
 
-    function fetchJsonp(_url) {
-      var options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1]; // to avoid param reassign
-
-      var url = _url;
-      var timeout = options.timeout || defaultOptions.timeout;
-      var jsonpCallback = options.jsonpCallback || defaultOptions.jsonpCallback;
-      var timeoutId = undefined;
-      return new Promise(function (resolve, reject) {
-        var callbackFunction = options.jsonpCallbackFunction || generateCallbackFunction();
-        var scriptId = jsonpCallback + '_' + callbackFunction;
-
-        window[callbackFunction] = function (response) {
-          resolve({
-            ok: true,
-            // keep consistent with fetch API
-            json: function json() {
-              return Promise.resolve(response);
-            }
-          });
-          if (timeoutId) clearTimeout(timeoutId);
-          removeScript(scriptId);
-          clearFunction(callbackFunction);
-        }; // Check if the user set their own params, and if not add a ? to start a list of params
-
-
-        url += url.indexOf('?') === -1 ? '?' : '&';
-        var jsonpScript = document.createElement('script');
-        jsonpScript.setAttribute('src', '' + url + jsonpCallback + '=' + callbackFunction);
-
-        if (options.charset) {
-          jsonpScript.setAttribute('charset', options.charset);
+      function clearFunction(functionName) {
+        // IE8 throws an exception when you try to delete a property on window
+        // http://stackoverflow.com/a/1824228/751089
+        try {
+          delete window[functionName];
+        } catch (e) {
+          window[functionName] = undefined;
         }
-
-        jsonpScript.id = scriptId;
-        document.getElementsByTagName('head')[0].appendChild(jsonpScript);
-        timeoutId = setTimeout(function () {
-          reject(new Error('JSONP request to ' + _url + ' timed out'));
-          clearFunction(callbackFunction);
-          removeScript(scriptId);
-
-          window[callbackFunction] = function () {
-            clearFunction(callbackFunction);
-          };
-        }, timeout); // Caught if got 404/500
-
-        jsonpScript.onerror = function () {
-          reject(new Error('JSONP request to ' + _url + ' failed'));
-          clearFunction(callbackFunction);
-          removeScript(scriptId);
-          if (timeoutId) clearTimeout(timeoutId);
-        };
-      });
-    } // export as global function
-
-    /*
-    let local;
-    if (typeof global !== 'undefined') {
-      local = global;
-    } else if (typeof self !== 'undefined') {
-      local = self;
-    } else {
-      try {
-        local = Function('return this')();
-      } catch (e) {
-        throw new Error('polyfill failed because global object is unavailable in this environment');
       }
-    }
-    local.fetchJsonp = fetchJsonp;
-    */
+
+      function removeScript(scriptId) {
+        var script = document.getElementById(scriptId);
+
+        if (script) {
+          document.getElementsByTagName('head')[0].removeChild(script);
+        }
+      }
+
+      function fetchJsonp(_url) {
+        var options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1]; // to avoid param reassign
+
+        var url = _url;
+        var timeout = options.timeout || defaultOptions.timeout;
+        var jsonpCallback = options.jsonpCallback || defaultOptions.jsonpCallback;
+        var timeoutId = undefined;
+        return new Promise(function (resolve, reject) {
+          var callbackFunction = options.jsonpCallbackFunction || generateCallbackFunction();
+          var scriptId = jsonpCallback + '_' + callbackFunction;
+
+          window[callbackFunction] = function (response) {
+            resolve({
+              ok: true,
+              // keep consistent with fetch API
+              json: function json() {
+                return Promise.resolve(response);
+              }
+            });
+            if (timeoutId) clearTimeout(timeoutId);
+            removeScript(scriptId);
+            clearFunction(callbackFunction);
+          }; // Check if the user set their own params, and if not add a ? to start a list of params
 
 
-    module.exports = fetchJsonp;
+          url += url.indexOf('?') === -1 ? '?' : '&';
+          var jsonpScript = document.createElement('script');
+          jsonpScript.setAttribute('src', '' + url + jsonpCallback + '=' + callbackFunction);
+
+          if (options.charset) {
+            jsonpScript.setAttribute('charset', options.charset);
+          }
+
+          jsonpScript.id = scriptId;
+          document.getElementsByTagName('head')[0].appendChild(jsonpScript);
+          timeoutId = setTimeout(function () {
+            reject(new Error('JSONP request to ' + _url + ' timed out'));
+            clearFunction(callbackFunction);
+            removeScript(scriptId);
+
+            window[callbackFunction] = function () {
+              clearFunction(callbackFunction);
+            };
+          }, timeout); // Caught if got 404/500
+
+          jsonpScript.onerror = function () {
+            reject(new Error('JSONP request to ' + _url + ' failed'));
+            clearFunction(callbackFunction);
+            removeScript(scriptId);
+            if (timeoutId) clearTimeout(timeoutId);
+          };
+        });
+      } // export as global function
+
+      /*
+      let local;
+      if (typeof global !== 'undefined') {
+        local = global;
+      } else if (typeof self !== 'undefined') {
+        local = self;
+      } else {
+        try {
+          local = Function('return this')();
+        } catch (e) {
+          throw new Error('polyfill failed because global object is unavailable in this environment');
+        }
+      }
+      local.fetchJsonp = fetchJsonp;
+      */
+
+
+      module.exports = fetchJsonp;
+    });
   });
-  });
-
   var CORS_PROXY = "https://iajs-cors.rchrd2.workers.dev";
   var enc = encodeURIComponent;
 
@@ -305,9 +162,9 @@
   };
 
   var fetchJson = /*#__PURE__*/function () {
-    var _ref = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee(url, options) {
+    var _ref = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime.mark(function _callee(url, options) {
       var res;
-      return regeneratorRuntime.wrap(function _callee$(_context) {
+      return _regeneratorRuntime.wrap(function _callee$(_context) {
         while (1) {
           switch (_context.prev = _context.next) {
             case 0:
@@ -389,9 +246,9 @@
     _createClass(Auth, [{
       key: "login",
       value: function () {
-        var _login = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee2(email, password) {
+        var _login = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime.mark(function _callee2(email, password) {
           var fetchOptions, response, data;
-          return regeneratorRuntime.wrap(function _callee2$(_context2) {
+          return _regeneratorRuntime.wrap(function _callee2$(_context2) {
             while (1) {
               switch (_context2.prev = _context2.next) {
                 case 0:
@@ -415,7 +272,7 @@
                   data = _context2.sent;
 
                   if (!data.success) {
-                    data.values = _objectSpread2(_objectSpread2({}, data.values), newEmptyAuth().values);
+                    data.values = _objectSpread(_objectSpread({}, data.values), newEmptyAuth().values);
                   }
 
                   return _context2.abrupt("return", data);
@@ -442,11 +299,11 @@
     }, {
       key: "fromS3",
       value: function () {
-        var _fromS = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee3(access, secret) {
+        var _fromS = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime.mark(function _callee3(access, secret) {
           var newAuth,
               info,
               _args3 = arguments;
-          return regeneratorRuntime.wrap(function _callee3$(_context3) {
+          return _regeneratorRuntime.wrap(function _callee3$(_context3) {
             while (1) {
               switch (_context3.prev = _context3.next) {
                 case 0:
@@ -485,12 +342,12 @@
     }, {
       key: "fromCookies",
       value: function () {
-        var _fromCookies = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee4(loggedInSig, loggedInUser) {
+        var _fromCookies = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime.mark(function _callee4(loggedInSig, loggedInUser) {
           var newAuth,
               s3response,
               s3,
               _args4 = arguments;
-          return regeneratorRuntime.wrap(function _callee4$(_context4) {
+          return _regeneratorRuntime.wrap(function _callee4$(_context4) {
             while (1) {
               switch (_context4.prev = _context4.next) {
                 case 0:
@@ -559,10 +416,10 @@
     _createClass(FavoritesAPI, [{
       key: "get",
       value: function () {
-        var _get = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee5(_ref2) {
+        var _get = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime.mark(function _callee5(_ref2) {
           var _ref2$screenname, screenname, _ref2$auth, auth, params;
 
-          return regeneratorRuntime.wrap(function _callee5$(_context5) {
+          return _regeneratorRuntime.wrap(function _callee5$(_context5) {
             while (1) {
               switch (_context5.prev = _context5.next) {
                 case 0:
@@ -607,20 +464,21 @@
     }, {
       key: "add",
       value: function () {
-        var _add = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee6() {
+        var _add = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime.mark(function _callee6() {
           var _ref3,
               _ref3$identifier,
               identifier,
               _ref3$comments,
+              comments,
               _ref3$auth,
               auth,
               _args6 = arguments;
 
-          return regeneratorRuntime.wrap(function _callee6$(_context6) {
+          return _regeneratorRuntime.wrap(function _callee6$(_context6) {
             while (1) {
               switch (_context6.prev = _context6.next) {
                 case 0:
-                  _ref3 = _args6.length > 0 && _args6[0] !== undefined ? _args6[0] : {}, _ref3$identifier = _ref3.identifier, identifier = _ref3$identifier === void 0 ? null : _ref3$identifier, _ref3$comments = _ref3.comments, _ref3$auth = _ref3.auth, auth = _ref3$auth === void 0 ? newEmptyAuth() : _ref3$auth;
+                  _ref3 = _args6.length > 0 && _args6[0] !== undefined ? _args6[0] : {}, _ref3$identifier = _ref3.identifier, identifier = _ref3$identifier === void 0 ? null : _ref3$identifier, _ref3$comments = _ref3.comments, comments = _ref3$comments === void 0 ? "" : _ref3$comments, _ref3$auth = _ref3.auth, auth = _ref3$auth === void 0 ? newEmptyAuth() : _ref3$auth;
                   _context6.next = 3;
                   return this.modify({
                     identifier: identifier,
@@ -647,7 +505,7 @@
     }, {
       key: "remove",
       value: function () {
-        var _remove = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee7() {
+        var _remove = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime.mark(function _callee7() {
           var _ref4,
               _ref4$identifier,
               identifier,
@@ -655,7 +513,7 @@
               auth,
               _args7 = arguments;
 
-          return regeneratorRuntime.wrap(function _callee7$(_context7) {
+          return _regeneratorRuntime.wrap(function _callee7$(_context7) {
             while (1) {
               switch (_context7.prev = _context7.next) {
                 case 0:
@@ -686,9 +544,9 @@
     }, {
       key: "modify",
       value: function () {
-        var _modify = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee8(params, auth) {
+        var _modify = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime.mark(function _callee8(params, auth) {
           var mdResponse, response;
-          return regeneratorRuntime.wrap(function _callee8$(_context8) {
+          return _regeneratorRuntime.wrap(function _callee8$(_context8) {
             while (1) {
               switch (_context8.prev = _context8.next) {
                 case 0:
@@ -760,13 +618,13 @@
     _createClass(GifcitiesAPI, [{
       key: "get",
       value: function () {
-        var _get2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee9() {
+        var _get2 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime.mark(function _callee9() {
           var _ref5,
               _ref5$q,
               q,
               _args9 = arguments;
 
-          return regeneratorRuntime.wrap(function _callee9$(_context9) {
+          return _regeneratorRuntime.wrap(function _callee9$(_context9) {
             while (1) {
               switch (_context9.prev = _context9.next) {
                 case 0:
@@ -799,8 +657,8 @@
     }, {
       key: "search",
       value: function () {
-        var _search = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee10(q) {
-          return regeneratorRuntime.wrap(function _callee10$(_context10) {
+        var _search = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime.mark(function _callee10(q) {
+          return _regeneratorRuntime.wrap(function _callee10$(_context10) {
             while (1) {
               switch (_context10.prev = _context10.next) {
                 case 0:
@@ -838,7 +696,7 @@
     _createClass(MetadataAPI, [{
       key: "get",
       value: function () {
-        var _get3 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee11() {
+        var _get3 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime.mark(function _callee11() {
           var _ref6,
               _ref6$identifier,
               identifier,
@@ -849,7 +707,7 @@
               options,
               _args11 = arguments;
 
-          return regeneratorRuntime.wrap(function _callee11$(_context11) {
+          return _regeneratorRuntime.wrap(function _callee11$(_context11) {
             while (1) {
               switch (_context11.prev = _context11.next) {
                 case 0:
@@ -875,7 +733,7 @@
     }, {
       key: "patch",
       value: function () {
-        var _patch2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee12() {
+        var _patch2 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime.mark(function _callee12() {
           var _ref7,
               _ref7$identifier,
               identifier,
@@ -893,7 +751,7 @@
               response,
               _args12 = arguments;
 
-          return regeneratorRuntime.wrap(function _callee12$(_context12) {
+          return _regeneratorRuntime.wrap(function _callee12$(_context12) {
             while (1) {
               switch (_context12.prev = _context12.next) {
                 case 0:
@@ -954,13 +812,13 @@
     _createClass(RelatedAPI, [{
       key: "get",
       value: function () {
-        var _get4 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee13() {
+        var _get4 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime.mark(function _callee13() {
           var _ref8,
               _ref8$identifier,
               identifier,
               _args13 = arguments;
 
-          return regeneratorRuntime.wrap(function _callee13$(_context13) {
+          return _regeneratorRuntime.wrap(function _callee13$(_context13) {
             while (1) {
               switch (_context13.prev = _context13.next) {
                 case 0:
@@ -997,13 +855,13 @@
     _createClass(ReviewsAPI, [{
       key: "get",
       value: function () {
-        var _get5 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee14() {
+        var _get5 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime.mark(function _callee14() {
           var _ref9,
               _ref9$identifier,
               identifier,
               _args14 = arguments;
 
-          return regeneratorRuntime.wrap(function _callee14$(_context14) {
+          return _regeneratorRuntime.wrap(function _callee14$(_context14) {
             while (1) {
               switch (_context14.prev = _context14.next) {
                 case 0:
@@ -1027,7 +885,7 @@
     }, {
       key: "add",
       value: function () {
-        var _add2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee15() {
+        var _add2 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime.mark(function _callee15() {
           var _ref10,
               _ref10$identifier,
               identifier,
@@ -1043,7 +901,7 @@
               response,
               _args15 = arguments;
 
-          return regeneratorRuntime.wrap(function _callee15$(_context15) {
+          return _regeneratorRuntime.wrap(function _callee15$(_context15) {
             while (1) {
               switch (_context15.prev = _context15.next) {
                 case 0:
@@ -1057,7 +915,7 @@
                       body: body,
                       stars: stars
                     }),
-                    headers: _objectSpread2({
+                    headers: _objectSpread({
                       "Content-Type": "application/json"
                     }, authToHeaderS3(auth))
                   });
@@ -1099,7 +957,7 @@
     _createClass(S3API, [{
       key: "ls",
       value: function () {
-        var _ls = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee16() {
+        var _ls = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime.mark(function _callee16() {
           var _ref11,
               _ref11$identifier,
               identifier,
@@ -1107,7 +965,7 @@
               auth,
               _args16 = arguments;
 
-          return regeneratorRuntime.wrap(function _callee16$(_context16) {
+          return _regeneratorRuntime.wrap(function _callee16$(_context16) {
             while (1) {
               switch (_context16.prev = _context16.next) {
                 case 0:
@@ -1148,7 +1006,7 @@
     }, {
       key: "createEmptyItem",
       value: function () {
-        var _createEmptyItem = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee17() {
+        var _createEmptyItem = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime.mark(function _callee17() {
           var _ref12,
               _ref12$identifier,
               identifier,
@@ -1164,7 +1022,7 @@
               auth,
               _args17 = arguments;
 
-          return regeneratorRuntime.wrap(function _callee17$(_context17) {
+          return _regeneratorRuntime.wrap(function _callee17$(_context17) {
             while (1) {
               switch (_context17.prev = _context17.next) {
                 case 0:
@@ -1200,10 +1058,10 @@
     }, {
       key: "upload",
       value: function () {
-        var _upload = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee18(_ref13) {
+        var _upload = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime.mark(function _callee18(_ref13) {
           var _ref13$identifier, identifier, _ref13$key, key, _ref13$body, body, _ref13$autocreate, autocreate, _ref13$skipDerive, skipDerive, _ref13$testItem, testItem, _ref13$keepOldVersion, keepOldVersions, _ref13$metadata, metadata, _ref13$headers, headers, _ref13$wait, wait, _ref13$auth, auth, requestHeaders, requestUrl, response;
 
-          return regeneratorRuntime.wrap(function _callee18$(_context18) {
+          return _regeneratorRuntime.wrap(function _callee18$(_context18) {
             while (1) {
               switch (_context18.prev = _context18.next) {
                 case 0:
@@ -1302,7 +1160,7 @@
     _createClass(SearchAPI, [{
       key: "get",
       value: function () {
-        var _get6 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee19() {
+        var _get6 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime.mark(function _callee19() {
           var _ref14,
               _ref14$q,
               q,
@@ -1316,7 +1174,7 @@
               url,
               _args19 = arguments;
 
-          return regeneratorRuntime.wrap(function _callee19$(_context19) {
+          return _regeneratorRuntime.wrap(function _callee19$(_context19) {
             while (1) {
               switch (_context19.prev = _context19.next) {
                 case 0:
@@ -1334,7 +1192,7 @@
                     q = this.buildQueryFromObject(q);
                   }
 
-                  reqParams = _objectSpread2(_objectSpread2({
+                  reqParams = _objectSpread(_objectSpread({
                     q: q,
                     page: page,
                     fl: fields
@@ -1362,8 +1220,8 @@
     }, {
       key: "search",
       value: function () {
-        var _search2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee20(q) {
-          return regeneratorRuntime.wrap(function _callee20$(_context20) {
+        var _search2 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime.mark(function _callee20(q) {
+          return _regeneratorRuntime.wrap(function _callee20$(_context20) {
             while (1) {
               switch (_context20.prev = _context20.next) {
                 case 0:
@@ -1423,13 +1281,13 @@
     _createClass(ViewsAPI, [{
       key: "get",
       value: function () {
-        var _get7 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee21() {
+        var _get7 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime.mark(function _callee21() {
           var _ref15,
               _ref15$identifier,
               identifier,
               _args21 = arguments;
 
-          return regeneratorRuntime.wrap(function _callee21$(_context21) {
+          return _regeneratorRuntime.wrap(function _callee21$(_context21) {
             while (1) {
               switch (_context21.prev = _context21.next) {
                 case 0:
@@ -1472,7 +1330,7 @@
     _createClass(WaybackAPI, [{
       key: "available",
       value: function () {
-        var _available = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee22() {
+        var _available = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime.mark(function _callee22() {
           var _ref16,
               _ref16$url,
               url,
@@ -1484,7 +1342,7 @@
               response,
               _args22 = arguments;
 
-          return regeneratorRuntime.wrap(function _callee22$(_context22) {
+          return _regeneratorRuntime.wrap(function _callee22$(_context22) {
             while (1) {
               switch (_context22.prev = _context22.next) {
                 case 0:
@@ -1531,14 +1389,14 @@
     }, {
       key: "cdx",
       value: function () {
-        var _cdx = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee23() {
+        var _cdx = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime.mark(function _callee23() {
           var options,
               searchParams,
               response,
               raw,
               json,
               _args23 = arguments;
-          return regeneratorRuntime.wrap(function _callee23$(_context23) {
+          return _regeneratorRuntime.wrap(function _callee23$(_context23) {
             while (1) {
               switch (_context23.prev = _context23.next) {
                 case 0:
@@ -1587,7 +1445,7 @@
     }, {
       key: "savePageNow",
       value: function () {
-        var _savePageNow = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee24() {
+        var _savePageNow = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime.mark(function _callee24() {
           var _ref17,
               _ref17$url,
               url,
@@ -1607,7 +1465,7 @@
               response,
               _args24 = arguments;
 
-          return regeneratorRuntime.wrap(function _callee24$(_context24) {
+          return _regeneratorRuntime.wrap(function _callee24$(_context24) {
             while (1) {
               switch (_context24.prev = _context24.next) {
                 case 0:
@@ -1630,7 +1488,7 @@
                     credentials: "omit",
                     method: "POST",
                     body: paramify(params),
-                    headers: _objectSpread2({
+                    headers: _objectSpread({
                       Accept: "application/json",
                       "Content-Type": "application/x-www-form-urlencoded"
                     }, authToHeaderS3(auth))
@@ -1676,7 +1534,7 @@
        * Eg: https://archive.org/download/goodytwoshoes00newyiala/goodytwoshoes00newyiala_jp2.zip/
        */
       value: function () {
-        var _ls2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee25(identifier, zipPath) {
+        var _ls2 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime.mark(function _callee25(identifier, zipPath) {
           var auth,
               requestUrl,
               response,
@@ -1690,7 +1548,7 @@
               _ret,
               _args25 = arguments;
 
-          return regeneratorRuntime.wrap(function _callee25$(_context25) {
+          return _regeneratorRuntime.wrap(function _callee25$(_context25) {
             while (1) {
               switch (_context25.prev = _context25.next) {
                 case 0:
@@ -1818,7 +1676,5 @@
     WaybackAPI: new WaybackAPI(),
     ZipFileAPI: new ZipFileAPI()
   };
-
   return iajs;
-
-})));
+});

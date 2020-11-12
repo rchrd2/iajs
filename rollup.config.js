@@ -1,7 +1,8 @@
 import resolve from "@rollup/plugin-node-resolve";
 import commonjs from "@rollup/plugin-commonjs";
-import babel from "@rollup/plugin-babel";
+// import babel from "@rollup/plugin-babel";
 import pkg from "./package.json";
+import babel, { getBabelOutputPlugin } from "@rollup/plugin-babel";
 
 export default [
   {
@@ -12,39 +13,10 @@ export default [
       { name: "ia", file: "examples/web/ia.browser.js", format: "umd" },
     ],
     plugins: [
-      // babel({ babelrc: true }),
-      babel({
-        babelrc: false,
-        // targets: {
-        //   node: "10",
-        // },
-        // babelHelpers: "runtime",
-        // plugins: [
-        //   // "@babel/plugin-external-helpers",
-        //   // "transform-async-to-generator",
-        //   // "syntax-async-functions",
-        //   [
-        //     "@babel/plugin-transform-runtime",
-        //     {
-        //       regenerator: true,
-        //       absoluteRuntime: false,
-        //       corejs: false,
-        //       helpers: true,
-        //       regenerator: true,
-        //       // useESModules: false,
-        //       // version: "7.0.0-beta.0",
-        //     },
-        //   ],
-        // ],
-        presets: [
-          "@babel/preset-env",
-          // {
-          //   // modules: false,
-          //   targets: {
-          //     browsers: [">0.25%", "not op_mini all"],
-          //   },
-          // },
-        ],
+      getBabelOutputPlugin({
+        allowAllFormats: true,
+        presets: ["@babel/preset-env"],
+        plugins: [["@babel/plugin-transform-runtime", { useESModules: false }]],
       }),
       resolve(),
       commonjs(),

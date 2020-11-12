@@ -1,4 +1,3 @@
-import "regenerator-runtime/runtime";
 import fetch from "node-fetch";
 import fetchJsonp from "fetch-jsonp";
 import { DOMParser } from "xmldom";
