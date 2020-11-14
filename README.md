@@ -12,6 +12,18 @@ The major APIs are documented here <https://archive.org/services/docs/api/index.
 
 This library contains enough functionality to create powerful experiments and new experiences using the Internet Archive's platform and data.
 
+## Installation
+
+Through npm
+```
+npm i iajs
+```
+
+Load from CDN in browser
+```
+<script src="https://unpkg.com/iajs/dist/ia.browser.js"></script>
+```
+
 ## Live demos
 
 <https://rchrd2.github.io/iajs/examples/web/01.html>
@@ -20,7 +32,7 @@ This library contains enough functionality to create powerful experiments and ne
 ## Usage Examples
 
 ```
-<script src="ia.browser.js"></script>
+<script src="https://unpkg.com/iajs/dist/ia.browser.js"></script>
 <script>
 ia.GifcitiesAPI.search("snowglobe").then(console.log);
 
