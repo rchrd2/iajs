@@ -510,7 +510,7 @@
 	        if (Array.isArray(qObject[key])) {
 	          return `${key}:( ${qObject[key].map((v) => `"${v}"`).join(" OR ")} )`;
 	        } else {
-	          return `${key}=${qObject[key]}`;
+	          return `${key}:"${qObject[key]}"`;
 	        }
 	      })
 	      .join(" AND ");
