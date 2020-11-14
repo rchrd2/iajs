@@ -16,7 +16,26 @@ This library contains enough functionality to create powerful experiments and ne
 
 <https://rchrd2.github.io/iajs/examples/web/01.html>
 
-## Running nodejs examples
+
+## Usage Examples
+
+```
+<script src="ia.browser.js"></script>
+<script>
+ia.GifcitiesAPI.search("snowglobe").then(console.log);
+
+ia.MetadataAPI.get({
+  identifier: "mma_the_sphynx_and_great_pyramid_geezeh_271101",
+}).then(console.log);
+
+ia.SearchAPI.get({
+  q: {collection: "metropolitanmuseumofart-gallery"},
+  fields: ["identifier", "title"]
+}).then(console.log);
+</script>
+```
+
+## Running NodeJS examples
 
 ```
 npm i
@@ -32,8 +51,6 @@ node examples/node/03-reviews.js
 
 ## Planned features
 
-### p0
-
 - ✅ Read item metadata and list of files (Metadata API)
 - ✅ Update item metadata (Metadata API)
 - ✅ Search (Search API)
@@ -48,9 +65,6 @@ node examples/node/03-reviews.js
 - ✅ Add/remove/list favorites (bookmarks.php API)
 - ✅ Create items (S3 API)
 - ✅ Upload item files (S3 API)
-
-### p1
-
 - OpenLibrary.org APIs
 - BookReaderJSIA aka manifest API
 - Book IIIF API
@@ -61,15 +75,11 @@ node examples/node/03-reviews.js
 - Include a JSON diff library
 - more tbd
 
-### Library TODO:
-
-- ✅ Examples using non-compiled code straight in the browser. Eg unpkg
-- Include examples in the README
 
 ## Misc
 
 Note:
-I wanted to build this while I worked at Internet Archive, but did not have the bandwidth
+I wanted to build this while I worked at Internet Archive, but did not have the bandwidth. Now I'm working on this in my free time.
 
 See Also:
 
