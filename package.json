@@ -1,6 +1,6 @@
 {
   "name": "iajs",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Internet Archive JavaScript Client",
   "main": "dist/ia.cjs.js",
   "module": "dist/ia.esm.js",
