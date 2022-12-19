@@ -248,7 +248,7 @@ function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "functi
 
             return data;
           })["catch"](function (e) {
-            // TODO figure out syntax for catching error reponse
+            // TODO figure out syntax for catching error response
             return newEmptyAuth();
           });
         }).then(function () {});

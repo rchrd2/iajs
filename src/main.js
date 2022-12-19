@@ -86,7 +86,7 @@ class Auth {
       }
       return data;
     } catch (e) {
-      // TODO figure out syntax for catching error reponse
+      // TODO figure out syntax for catching error response
       return newEmptyAuth();
     }
   }
